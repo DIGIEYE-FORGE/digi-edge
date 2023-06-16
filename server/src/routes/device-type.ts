@@ -33,12 +33,6 @@ const deviceTypeRouter = router({
 			return await prisma.deviceType.create({ data: input });
 		}),
 
-	createMany: procedure
-		.input(z.array(createSchema))
-		.mutation(async (opts) => {
-			const { input } = opts;
-			return await prisma.deviceType.createMany({ data: input });
-		}),
 
 	update: procedure
 		.input(z.object({

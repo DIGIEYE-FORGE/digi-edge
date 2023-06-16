@@ -31,8 +31,8 @@ const groupRouter = router({
 				orderBy: orderBy && { [orderBy.field]: orderBy.direction },
 				where: search ? {
 					OR: [
-						{ name: { contains: search, mode: 'insensitive' } },
-						{ type: { contains: search, mode: 'insensitive' } },
+						{ name: { contains: search } },
+						{ type: { contains: search } },
 					]
 				} : undefined,
 			});
@@ -57,13 +57,6 @@ const groupRouter = router({
 			const group = await prisma.group.create({ data: input });
 			return group;
 
-		}),
-
-	createMany: procedure
-		.input(z.array(createSchema))
-		.mutation(async (opts) => {
-			const { input } = opts;
-			return await prisma.group.createMany({ data: input });
 		}),
 
 	update: procedure

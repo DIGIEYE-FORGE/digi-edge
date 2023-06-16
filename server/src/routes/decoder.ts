@@ -35,13 +35,6 @@ const decoderRouter = router({
 			return await prisma.decoder.create({ data: input });
 		}),
 
-	createMany: procedure
-		.input(z.array(createSchema))
-		.mutation(async (opts) => {
-			const { input } = opts;
-			return await prisma.decoder.createMany({ data: input });
-		}),
-
 	update: procedure
 		.input(z.object({
 			id: z.number(),

@@ -2,7 +2,6 @@ import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import env from "../common/env"
 import { genSalt, hash } from 'bcryptjs';
-import redis from '../common/redis';
 import { TRPCError } from '@trpc/server';
 
 export const isMin = (min: number) => z.string().min(min, {
@@ -53,14 +52,6 @@ export function generateRefreshToken(user: { id: number }) {
 
 
 export async function verifyToken(token: string) {
-	const isBlacklisted = await redis.get(token);
-	if (isBlacklisted) {
-		throw new TRPCError({
-			code: 'UNAUTHORIZED',
-			message: 'Invalid refresh token',
-		})
-	}
-	console.log('token', token);
 	try {
 		return jwt.verify(token, env.JWT_SECRET) as DecodedToken;
 	}

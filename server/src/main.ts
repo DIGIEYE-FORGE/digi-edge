@@ -1,6 +1,5 @@
 import { createContext, router } from './trpc';
 import userRouter from './routes/user';
-import postRouter from './routes/post';
 import authRouter from './routes/auth';
 import express from 'express';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -17,7 +16,6 @@ import deviceRouter from './routes/device';
 
 const appRouter = router({
 	user: userRouter,
-	post: postRouter,
 	auth: authRouter,
 	deviceType: deviceTypeRouter,
 	group: groupRouter,

@@ -46,23 +46,6 @@ const userRouter = router({
 			});
 		}),
 
-	createMany: procedure
-		.input(z.array(createUserSchema))
-		.mutation(async (opts) => {
-			const { input } = opts;
-			return await prisma.user.createMany({
-				data: await Promise.all(input.map(async (user) => {
-					const { password, ...rest } = user;
-					const salt = await bcrypt.genSalt(10);
-					const hashedPassword = await bcrypt.hash(password, salt);
-					return {
-						...rest,
-						password: hashedPassword,
-					};
-				})),
-			});
-		}),
-
 	update: procedure
 		.input(z.object({
 			id: isId(),

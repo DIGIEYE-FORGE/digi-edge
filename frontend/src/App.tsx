@@ -23,8 +23,6 @@ export type AppContext = {
   handleConfirm: (data: ConfirmDialogData) => void;
   accessToken: string;
   setAccessToken: React.Dispatch<React.SetStateAction<string>>;
-  refreshToken: string;
-  setRefreshToken: React.Dispatch<React.SetStateAction<string>>;
   trpc: ReturnType<typeof createTRPCProxyClient<AppRouter>>;
   loginState: State;
   setLoginState: React.Dispatch<React.SetStateAction<State>>;

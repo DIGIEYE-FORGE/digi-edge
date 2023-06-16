@@ -13,8 +13,8 @@ function CustomSelect({
   label?: string;
   className?: string;
   value: string | undefined;
-  onChange?: (newVal: string | undefined) => void;
-  options: OptionType[];
+  onChange?: (newVal: string) => void;
+  options: OptionType[] | string[];
 }) {
   if (options.length === 0)
     return (
@@ -38,11 +38,17 @@ function CustomSelect({
         <option value="" disabled>
           Select
         </option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {options.map((option) =>
+          typeof option === "string" ? (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ) : (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          )
+        )}
       </select>
       <div
         className=" 

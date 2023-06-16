@@ -1,6 +1,5 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
-  // Drawer,
   Typography,
   IconButton,
   Input,
@@ -9,6 +8,7 @@ import {
 import { useProvider } from "../../../../components/provider";
 import { GroupsPageContext } from "..";
 import Drawer from "../../../../components/drawer";
+import CustomSelect from "../../../../components/custom-select";
 
 function AddEditGroup() {
   const { group, setGroup, trpc, getGroups } = useProvider<GroupsPageContext>();
@@ -62,7 +62,7 @@ function AddEditGroup() {
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
       </div>
-      <div className="flex-1 flex flex-col gap-4 p-4 border-b">
+      <div className="flex-1 flex flex-col gap-4 md:gap-6 p-2 md:p-4 lg:p-6 ">
         <div>
           <Input
             label="Name *"
@@ -76,19 +76,20 @@ function AddEditGroup() {
           />
         </div>
         <div>
-          <Input
+          <CustomSelect
             label="Type *"
             value={group?.type || ""}
-            onChange={(e) => {
+            onChange={(newVal) => {
               setGroup({
                 ...group!,
-                type: e.target.value,
+                type: newVal as string,
               });
             }}
+            options={["type1", "type2", "type3"]}
           />
         </div>
       </div>
-      <div className="flex p-4 justify-between">
+      <div className="flex p-4 justify-between bg-blue-gray-500/10">
         <Button variant="text" color="red" onClick={() => setGroup(null)}>
           cancel
         </Button>

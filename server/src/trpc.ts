@@ -1,5 +1,4 @@
 import { TRPCError, initTRPC } from '@trpc/server';
-import { Role } from '@prisma/client';
 import { verifyToken } from './utils';
 import prisma from './common/prisma';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -9,7 +8,7 @@ interface Context {
 	res: any;
 	user?: {
 		id: string;
-		role: Role
+		role: string
 	};
 }
 

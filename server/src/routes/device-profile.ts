@@ -39,11 +39,11 @@ const deviceProfileRouter = router({
 				},
 				where: search ? {
 					OR: [
-						{ name: { contains: search, mode: 'insensitive' } },
-						{ description: { contains: search, mode: 'insensitive' } },
-						{ decoder: { name: { contains: search, mode: 'insensitive' } } },
-						{ protocol: { name: { contains: search, mode: 'insensitive' } } },
-						{ deviceType: { name: { contains: search, mode: 'insensitive' } } },
+						{ name: { contains: search } },
+						{ description: { contains: search } },
+						{ decoder: { name: { contains: search } } },
+						{ protocol: { name: { contains: search } } },
+						{ deviceType: { name: { contains: search } } },
 					]
 				} : undefined,
 			});
@@ -69,26 +69,10 @@ const deviceProfileRouter = router({
 				...rest
 			} = opts.input;
 			return await prisma.deviceProfile.create({
-				data: {
-					attributes: attributes && {
-						createMany: {
-							data: Object.entries(attributes).map(([key, value]) => ({
-								name: key,
-								value,
-							}))
-						}
-					},
-					...rest,
-				}
+				data: { ...rest }
 			});
 		}),
 
-	// createMany: procedure
-	// 	.input(z.array(createSchema))
-	// 	.mutation(async (opts) => {
-	// 		const { input } = opts;
-	// 		return await prisma.deviceProfile.createMany({ data: input });
-	// 	}),
 
 	update: procedure
 		.input(z.object({

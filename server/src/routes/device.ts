@@ -58,17 +58,7 @@ const deviceRouter = router({
 				...rest
 			} = opts.input
 			return await prisma.device.create({
-				data: {
-					...rest,
-					attributes: attributes && {
-						createMany: {
-							data: Object.entries(attributes).map(([key, value]) => ({
-								name: key,
-								value,
-							}))
-						}
-					},
-				}
+				data: { ...rest, }
 			});
 		}),
 
@@ -88,14 +78,6 @@ const deviceRouter = router({
 			return await prisma.device.update({
 				where: { id }, data: {
 					...rest,
-					attributes: attributes && {
-						createMany: {
-							data: Object.entries(attributes).map(([key, value]) => ({
-								name: key,
-								value,
-							}))
-						}
-					},
 				}
 			});
 		}),

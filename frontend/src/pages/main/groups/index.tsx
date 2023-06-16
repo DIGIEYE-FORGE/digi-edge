@@ -80,20 +80,20 @@ export function GroupsPage() {
                   direction: prev?.direction === "asc" ? "desc" : "asc",
                 }));
               }}
-              className="flex gap-1 items-center text-inherit text-md w-full"
+              className="flex px-2 gap-2 items-center text-inherit text-md w-full h-full rounded-none"
             >
-              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
+              <span className="flex flex-col justify-center text-blue-gray-100 ">
                 <ChevronUpIcon
                   className={`h-3 font-bold ${
                     orderBy?.field === "name" && orderBy?.direction === "asc"
-                      ? "text-blue-700"
+                      ? "text-blue-500"
                       : ""
                   }`}
                 />
                 <ChevronDownIcon
                   className={`h-3 font-bold ${
                     orderBy?.field === "name" && orderBy?.direction === "desc"
-                      ? "text-blue-700"
+                      ? "text-blue-500"
                       : ""
                   }`}
                 />
@@ -109,23 +109,23 @@ export function GroupsPage() {
               variant="text"
               onClick={() => {
                 setOrderBy((prev) => ({
-                  field: "name",
+                  field: "type",
                   direction: prev?.direction === "asc" ? "desc" : "asc",
                 }));
               }}
-              className="flex gap-1 items-center text-inherit text-md w-full"
+              className="flex px-2 gap-2 items-center text-inherit text-md w-full h-full rounded-none"
             >
-              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
+              <span className="flex flex-col justify-center text-blue-gray-100">
                 <ChevronUpIcon
                   className={`h-3 font-bold ${
-                    orderBy?.field === "name" && orderBy?.direction === "asc"
+                    orderBy?.field === "type" && orderBy?.direction === "asc"
                       ? "text-blue-700"
                       : ""
                   }`}
                 />
                 <ChevronDownIcon
                   className={`h-3 font-bold ${
-                    orderBy?.field === "name" && orderBy?.direction === "desc"
+                    orderBy?.field === "type" && orderBy?.direction === "desc"
                       ? "text-blue-700"
                       : ""
                   }`}
@@ -146,7 +146,7 @@ export function GroupsPage() {
                   direction: prev?.direction === "asc" ? "desc" : "asc",
                 }));
               }}
-              className="flex gap-1 items-center text-inherit text-md w-full"
+              className="flex px-2 gap-1 items-center text-inherit text-md w-full h-full rounded-none"
             >
               <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
                 <ChevronUpIcon
@@ -161,7 +161,7 @@ export function GroupsPage() {
                   className={`h-3 font-bold ${
                     orderBy?.field === "createdAt" &&
                     orderBy?.direction === "desc"
-                      ? "text-blue-700"
+                      ? "text-blue-500"
                       : ""
                   }`}
                 />
@@ -173,7 +173,7 @@ export function GroupsPage() {
             format(new Date(row.createdAt!), "yyyy-MM-dd HH:mm"),
         },
         {
-          header: "actions",
+          header: <span className="px-2">Actions</span>,
           width: "120px",
           valueGetter: (row) => (
             <div className="flex items-center gap-2">
@@ -231,7 +231,10 @@ export function GroupsPage() {
             <Input
               label="Search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }}
             ></Input>
           </div>
           <Button
@@ -241,10 +244,10 @@ export function GroupsPage() {
             <PlusCircleIcon strokeWidth={2} className="w-6" />
           </Button>
         </div>
-        <Card className="flex flex-col flex-1">
+        <Card className="flex flex-col flex-1 ">
           <DataGrid
             className="text-left table-fixed w-full capitalize"
-            headerClassName="capitalize [&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
+            headerClassName="capitalize [&>*]:h-16 border-b border-blue-gray-100 text-gray-900"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
             rows={rows.slice(
               (pagination.page - 1) * pagination.perPage,

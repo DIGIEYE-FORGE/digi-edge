@@ -27,7 +27,7 @@ const loginSchema = z.object({
 });
 
 function LoginPage() {
-  const { trpc, setAccessToken, setRefreshToken } = useProvider<AppContext>();
+  const { trpc, setAccessToken } = useProvider<AppContext>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -40,13 +40,12 @@ function LoginPage() {
       const data = loginSchema.parse(loginData);
       setIsLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      const { accessToken, refreshToken } = await trpc.auth.login.mutate({
+      const { accessToken } = await trpc.auth.login.mutate({
         email: data.email,
         password: data.password,
       });
 
-      setAccessToken(refreshToken);
-      setRefreshToken(refreshToken);
+      setAccessToken(accessToken);
     } catch (e) {
       console.error(e);
       if (e instanceof z.ZodError) {

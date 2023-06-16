@@ -33,13 +33,6 @@ const protocolRouter = router({
 			return await prisma.protocol.create({ data: input });
 		}),
 
-	createMany: procedure
-		.input(z.array(createSchema))
-		.mutation(async (opts) => {
-			const { input } = opts;
-			return await prisma.protocol.createMany({ data: input });
-		}),
-
 	update: procedure
 		.input(z.object({
 			id: z.number(),
