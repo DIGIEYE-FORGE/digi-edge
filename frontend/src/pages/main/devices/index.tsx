@@ -16,24 +16,24 @@ import Provider, { useProvider } from "../../../components/provider";
 import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
-import {
-  Device as Data,
-  Decoder,
-  DeviceType,
-  Protocol,
-  State,
-} from "../../../utils/types.ts";
+import { Device as Data, Name, State } from "../../../utils/types.ts";
+
+const defaultData: Data = {
+  name: "",
+  serial: "",
+  deviceProfileId: null,
+  groupId: null,
+  isPassive: false,
+  isDecoded: false,
+};
 
 export type Context = AppContext & {
   data: Data | null;
   setData: React.Dispatch<Data | null>;
   fetchRows: () => Promise<void>;
-  deviceTypes: DeviceType[];
-  fetchDeviceTypes: () => Promise<void>;
-  protocols: Protocol[];
-  fetchProtocols: () => Promise<void>;
-  decoders: Decoder[];
   fetchDecoders: () => Promise<void>;
+  deviceProfiles: Name[];
+  groups: Name[];
 };
 export function DeviceProfilePage() {
   const context = useProvider<AppContext>();
@@ -41,6 +41,20 @@ export function DeviceProfilePage() {
   const [data, setData] = React.useState<Data | null>(null);
   const [rows, setRows] = React.useState<Data[]>([]);
   const [fetchingState, setFetchingState] = useState<State>("idle");
+  const [deviceProfiles, setDeviceProfiles] = useState<Name[]>([]);
+  const [groups, setGroups] = useState<Name[]>([]);
+
+  const fetchStatic = useCallback(async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const deviceProfiles = await trpc.deviceProfile.getNames.query();
+      const groups = await trpc.group.getNames.query();
+      setDeviceProfiles(deviceProfiles);
+      setGroups(groups);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [trpc]);
 
   const fetchRows = useCallback(async () => {
     setFetchingState("loading");
@@ -56,6 +70,7 @@ export function DeviceProfilePage() {
   }, [trpc]);
 
   useEffect(() => {
+    fetchStatic();
     fetchRows();
   }, []);
 
@@ -73,6 +88,22 @@ export function DeviceProfilePage() {
         {
           header: "serial",
           field: "serial",
+        },
+        {
+          header: "deviceProfile",
+          valueGetter: (row) => row?.deviceProfile?.name,
+        },
+        {
+          header: "group",
+          valueGetter: (row) => row?.group?.name,
+        },
+        {
+          header: "isPassive",
+          field: "isPassive",
+        },
+        {
+          header: "isDecoded",
+          field: "isDecoded",
         },
         {
           header: "actions",
@@ -122,6 +153,8 @@ export function DeviceProfilePage() {
         data,
         setData,
         fetchRows,
+        deviceProfiles,
+        groups,
       }}
     >
       <div className="h-full flex flex-col gap-4">

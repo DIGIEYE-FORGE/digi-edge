@@ -20,6 +20,11 @@ const groupRouter = router({
 			return await prisma.group.findMany();
 		}),
 
+	getNames: procedure
+		.query(async () => {
+			return await prisma.group.findMany({ select: { id: true, name: true } });
+		}),
+
 	findUnique: procedure
 		.input(z.number())
 		.query(async (opts) => {

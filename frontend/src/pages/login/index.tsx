@@ -8,6 +8,7 @@ import {
   CardFooter,
   Button,
   Alert,
+  Spinner,
 } from "@material-tailwind/react";
 import { useProvider } from "../../components/provider";
 import { AppContext } from "../../App";
@@ -98,6 +99,7 @@ function LoginPage() {
           />
           <Input
             label="Password"
+            type="password"
             size="lg"
             error={!!error && !error.includes("email")}
             onChange={(e) => {
@@ -118,13 +120,7 @@ function LoginPage() {
             fullWidth
             onClick={handleLogin}
           >
-            {isLoading ? (
-              <div className="h-6 aspect-square bg-white/20 rounded-full animate-pulse">
-                {""}
-              </div>
-            ) : (
-              <span>Sign In</span>
-            )}
+            {isLoading ? <Spinner /> : <span>Sign In</span>}
           </Button>
           <Typography variant="small" className="mt-6 flex justify-center">
             Don't have an account?

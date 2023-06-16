@@ -21,19 +21,37 @@ const deviceProfileRouter = router({
 
 	findMany: procedure
 		.input(z.object({
+			search: z.string().optional(),
 			take: z.number().optional(),
 			skip: z.number().optional(),
 		}).optional())
-		.query(async () => {
+		.query(async (opts) => {
+			const { take, skip, search } = opts.input || {};
 			return await prisma.deviceProfile.findMany({
+				take: take,
+				skip: skip,
+				orderBy: { createdAt: 'desc' },
 				include: {
 					deviceType: true,
 					decoder: true,
 					attributes: true,
 					protocol: true,
-
 				},
+				where: search ? {
+					OR: [
+						{ name: { contains: search, mode: 'insensitive' } },
+						{ description: { contains: search, mode: 'insensitive' } },
+						{ decoder: { name: { contains: search, mode: 'insensitive' } } },
+						{ protocol: { name: { contains: search, mode: 'insensitive' } } },
+						{ deviceType: { name: { contains: search, mode: 'insensitive' } } },
+					]
+				} : undefined,
 			});
+		}),
+
+	getNames: procedure
+		.query(async () => {
+			return await prisma.deviceProfile.findMany({ select: { id: true, name: true } });
 		}),
 
 	findUnique: procedure

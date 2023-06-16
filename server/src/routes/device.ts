@@ -4,34 +4,6 @@ import { z } from 'zod';
 import { isBetween } from '../utils';
 import { TRPCError } from '@trpc/server';
 
-// model Device {
-//   id          Int @id @default (autoincrement())
-//   name        String
-//   serial      String @unique
-//   isPassive   Boolean @default (false) @map("is_passive")
-//   isDecode   Boolean @default (false) @map("is_decoder")
-//   blacklisted Boolean @default (false)
-
-//   attributes      Attribute[]
-//   lastTelemetries LastTelemetry[]
-//   history         History[]
-//   tags            Tag[]
-//   credential      Credential ? @relation(fields: [credentialId], references: [id])
-//   credentialId    Int ? @unique @map("credential_id")
-//   VirtualDevice   VirtualDevice ? @relation(fields: [virtualDeviceId], references: [id])
-//   virtualDeviceId Int ? @map("virtual_device_id")
-//   group           Group ? @relation(fields: [groupId], references: [id])
-//   groupId         Int ? @map("group_id")
-//   deviceProfile   DeviceProfile ? @relation(fields: [deviceProfileId], references: [id])
-//   deviceProfileId Int ? @map("device_profile_id")
-//   mqttServer      MqttServer ? @relation(fields: [mqttServerId], references: [id])
-//   mqttServerId    Int ? @map("mqtt_server_id")
-
-//   createdAt DateTime @default (now()) @map("created_at")
-//   updatedAt DateTime @updatedAt @map("updated_at")
-
-// 	@@map("devices")
-// }
 
 
 export const createSchema = z.object({
@@ -67,7 +39,15 @@ const deviceRouter = router({
 		.input(z.number())
 		.query(async (opts) => {
 			const { input } = opts;
-			return await prisma.device.findUnique({ where: { id: input } });
+			return await prisma.device.findUnique({
+				where: { id: input }, include: {
+					deviceProfile: { select: { id: true, name: true, } },
+					group: { select: { id: true, name: true, } },
+					mqttServer: { select: { id: true, username: true } },
+					attributes: { select: { name: true, value: true } },
+					credential: { select: { id: true, username: true, isToken: true, password: true } },
+				}
+			});
 		}),
 
 	create: procedure
