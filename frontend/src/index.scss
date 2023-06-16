@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.debug {
+  border: 1px solid red;
+  & > * {
+    border: 1px solid green;
+    & > * {
+      border: 1px solid blue;
+    }
+  }
+}
+
+.bg-blur {
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(1rem);
+}

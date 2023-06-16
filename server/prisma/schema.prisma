@@ -1,0 +1,311 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  role         Role           @default(USER)
+  notification Notification[]
+  posts        Post[]
+  comments     Comment[]
+
+  @@map("users")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  userId    Int
+
+  @@map("posts")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+
+  @@map("comments")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
+  @@map("notifications")
+}
+
+model DeviceAttribute {
+  id        Int      @id @default(autoincrement())
+  name      String
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([name, value])
+  @@map("device_attributes")
+}
+
+model Telemetry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([name, value])
+  @@map("telemetries")
+}
+
+model Attribute {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value String
+
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId Int    @map("device_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([deviceId, name])
+  @@map("attributes")
+}
+
+model LastTelemetry {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value String
+
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deviceId Int    @map("device_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([deviceId, name])
+  @@map("last_telemetries")
+}
+
+model History {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value String
+
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deviceId Int    @map("device_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  date      DateTime @default(now())
+
+  @@map("history")
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  value String
+
+  device   Device @relation(fields: [deviceId], references: [id])
+  deviceId Int    @map("device_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([deviceId, value])
+  @@map("tags")
+}
+
+model Device {
+  id          Int     @id @default(autoincrement())
+  name        String
+  serial      String  @unique
+  isPassive   Boolean @default(false) @map("is_passive")
+  isDecode    Boolean @default(false) @map("is_decoder")
+  blacklisted Boolean @default(false)
+
+  attributes      Attribute[]
+  lastTelemetries LastTelemetry[]
+  history         History[]
+  tags            Tag[]
+  credential      Credential?     @relation(fields: [credentialId], references: [id])
+  credentialId    Int?            @unique @map("credential_id")
+  VirtualDevice   VirtualDevice?  @relation(fields: [virtualDeviceId], references: [id])
+  virtualDeviceId Int?            @map("virtual_device_id")
+  group           Group?          @relation(fields: [groupId], references: [id])
+  groupId         Int?            @map("group_id")
+  deviceProfile   DeviceProfile?  @relation(fields: [deviceProfileId], references: [id])
+  deviceProfileId Int?            @map("device_profile_id")
+  mqttServer      MqttServer?     @relation(fields: [mqttServerId], references: [id])
+  mqttServerId    Int?            @map("mqtt_server_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("devices")
+}
+
+model Credential {
+  id       Int     @id @default(autoincrement())
+  username String? @unique
+  password String?
+  isToken  Boolean @default(false) @map("is_token")
+
+  device Device?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("credentials")
+}
+
+model VirtualDevice {
+  id     Int    @id @default(autoincrement())
+  name   String
+  serial String @unique
+
+  devices Device[]
+  group   Group?   @relation(fields: [groupId], references: [id])
+  groupId Int?     @map("group_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("virtual_devices")
+}
+
+model Group {
+  id   Int    @id @default(autoincrement())
+  name String
+  type String
+
+  devices        Device[]
+  virtualDevices VirtualDevice[]
+  mqttServer     MqttServer?     @relation(fields: [mqttServerId], references: [id])
+  mqttServerId   Int?            @map("mqtt_server_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("groups")
+}
+
+model DeviceProfileAttribute {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value String
+
+  deviceProfile   DeviceProfile @relation(fields: [deviceProfileId], references: [id])
+  deviceProfileId Int           @map("device_profile_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([deviceProfileId, name])
+  @@map("device_profile_attributes")
+}
+
+model DeviceProfile {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  logo        String?
+
+  attributes      DeviceProfileAttribute[]
+  devices         Device[]
+  credentialsType String?                  @map("cridentials_type")
+  deviceType      DeviceType?              @relation(fields: [deviceTypeId], references: [id])
+  deviceTypeId    Int?                     @map("device_type_id")
+  protocol        Protocol?                @relation(fields: [protocolId], references: [id])
+  protocolId      Int?                     @map("protocol_id")
+  decoder         Decoder?                 @relation(fields: [decoderId], references: [id])
+  decoderId       Int?                     @map("decoder_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("device_profiles")
+}
+
+model DeviceType {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  deviceProfiles DeviceProfile[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("device_types")
+}
+
+model Protocol {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  deviceProfiles DeviceProfile[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("protocols")
+}
+
+model Decoder {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String
+  fnc         String
+
+  deviceProfile DeviceProfile[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("decoders")
+}
+
+model MqttServer {
+  id       Int    @id @default(autoincrement())
+  clientId Int    @map("client_id")
+  username String
+  password String
+  host     String
+  topic    String
+
+  groups  Group[]
+  devices Device[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("mqtt_servers")
+}
