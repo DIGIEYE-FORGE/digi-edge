@@ -131,167 +131,168 @@ function AddEdit() {
             <Tab value="Credentials">Credentials</Tab>
           </TabsHeader>
           <TabsBody>
-            <TabPanel value="General">
-              <div className="flex flex-col p-2 md:p-4 gap-6">
-                <div>
-                  <Input
-                    label="name"
-                    value={data?.name || ""}
-                    onChange={(e) => {
+            <TabPanel
+              value="General"
+              className="flex flex-col p-2 md:p-4 gap-6"
+            >
+              <div>
+                <Input
+                  label="name"
+                  value={data?.name || ""}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      name: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+              <div>
+                <Input
+                  label="serial"
+                  value={data?.serial || ""}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      serial: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+              <div className="p-2">
+                <Switch
+                  id="is-passive"
+                  checked={data?.isPassive}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      isPassive: e.target.checked,
+                    });
+                  }}
+                  label={
+                    <div>
+                      <Typography color="blue-gray" className="font-medium">
+                        IsPassive
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className="font-normal"
+                      >
+                        If true, the device will not be able to send data to the
+                        server
+                      </Typography>
+                    </div>
+                  }
+                />
+              </div>
+              <div className="p-2">
+                <Switch
+                  id="is-decoded"
+                  checked={data?.isDecoded}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      isDecoded: e.target.checked,
+                    });
+                  }}
+                  label={
+                    <div>
+                      <Typography color="blue-gray" className="font-medium">
+                        IsDecoded
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className="font-normal"
+                      >
+                        If true, the device don't need to decode the payload
+                      </Typography>
+                    </div>
+                  }
+                />
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <CustomSelect
+                    label="Device profile"
+                    value={data?.deviceProfileId?.toString() || ""}
+                    options={deviceProfiles.map((dp) => ({
+                      label: dp.name,
+                      value: dp.id.toString(),
+                    }))}
+                    onChange={(newVal) => {
                       setData({
                         ...data!,
-                        name: e.target.value,
+                        deviceProfileId: parseInt(newVal as string),
                       });
                     }}
                   />
                 </div>
-                <div>
-                  <Input
-                    label="serial"
-                    value={data?.serial || ""}
-                    onChange={(e) => {
-                      setData({
-                        ...data!,
-                        serial: e.target.value,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="p-2">
-                  <Switch
-                    id="is-passive"
-                    checked={data?.isPassive}
-                    onChange={(e) => {
-                      setData({
-                        ...data!,
-                        isPassive: e.target.checked,
-                      });
-                    }}
-                    label={
-                      <div>
-                        <Typography color="blue-gray" className="font-medium">
-                          IsPassive
-                        </Typography>
-                        <Typography
-                          variant="small"
-                          color="gray"
-                          className="font-normal"
-                        >
-                          If true, the device will not be able to send data to
-                          the server
-                        </Typography>
-                      </div>
-                    }
-                  />
-                </div>
-                <div className="p-2">
-                  <Switch
-                    id="is-decoded"
-                    checked={data?.isDecoded}
-                    onChange={(e) => {
-                      setData({
-                        ...data!,
-                        isDecoded: e.target.checked,
-                      });
-                    }}
-                    label={
-                      <div>
-                        <Typography color="blue-gray" className="font-medium">
-                          IsDecoded
-                        </Typography>
-                        <Typography
-                          variant="small"
-                          color="gray"
-                          className="font-normal"
-                        >
-                          If true, the device don't need to decode the payload
-                        </Typography>
-                      </div>
-                    }
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <CustomSelect
-                      label="Device profile"
-                      value={data?.deviceProfileId?.toString() || ""}
-                      options={deviceProfiles.map((dp) => ({
-                        label: dp.name,
-                        value: dp.id.toString(),
-                      }))}
-                      onChange={(newVal) => {
-                        setData({
-                          ...data!,
-                          deviceProfileId: parseInt(newVal as string),
-                        });
-                      }}
-                    />
-                  </div>
-                  <Button
-                    variant="text"
-                    className="flex justify-center items-center "
-                    onClick={() => {
-                      navigate("/device-profiles");
-                    }}
-                  >
-                    <PlusCircleIcon strokeWidth={2} className="w-6" />
-                  </Button>
-                </div>
+                <Button
+                  variant="text"
+                  className="flex justify-center items-center "
+                  onClick={() => {
+                    navigate("/device-profiles");
+                  }}
+                >
+                  <PlusCircleIcon strokeWidth={2} className="w-6" />
+                </Button>
+              </div>
 
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <CustomSelect
-                      label="Group"
-                      value={data?.groupId?.toString() || ""}
-                      options={groups.map((item) => ({
-                        label: item.name,
-                        value: item.id.toString(),
-                      }))}
-                      onChange={(newVal) => {
-                        setData({
-                          ...data!,
-                          groupId: parseInt(newVal as string),
-                        });
-                      }}
-                    />
-                  </div>
-                  <Button
-                    variant="text"
-                    className="flex justify-center items-center "
-                    onClick={() => {
-                      navigate("/device-profiles");
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <CustomSelect
+                    label="Group"
+                    value={data?.groupId?.toString() || ""}
+                    options={groups.map((item) => ({
+                      label: item.name,
+                      value: item.id.toString(),
+                    }))}
+                    onChange={(newVal) => {
+                      setData({
+                        ...data!,
+                        groupId: parseInt(newVal as string),
+                      });
                     }}
-                  >
-                    <PlusCircleIcon strokeWidth={2} className="w-6" />
-                  </Button>
+                  />
                 </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <CustomSelect
-                      label="MQTT Server"
-                      value={data?.mqttServerId?.toString() || ""}
-                      options={mqttServers.map((item) => ({
-                        label: item.host,
-                        value: item.id!.toString(),
-                      }))}
-                      onChange={(newVal) => {
-                        setData({
-                          ...data!,
-                          mqttServerId: parseInt(newVal as string),
-                        });
-                      }}
-                    />
-                  </div>
-                  <Button
-                    variant="text"
-                    className="flex justify-center items-center "
-                    onClick={() => {
-                      navigate("/device-profiles");
+                <Button
+                  variant="text"
+                  className="flex justify-center items-center "
+                  onClick={() => {
+                    navigate("/device-profiles");
+                  }}
+                >
+                  <PlusCircleIcon strokeWidth={2} className="w-6" />
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <CustomSelect
+                    label="MQTT Server"
+                    value={data?.mqttServerId?.toString() || ""}
+                    options={mqttServers.map((item) => ({
+                      label: item.host,
+                      value: item.id!.toString(),
+                    }))}
+                    onChange={(newVal) => {
+                      setData({
+                        ...data!,
+                        mqttServerId: parseInt(newVal as string),
+                      });
                     }}
-                  >
-                    <PlusCircleIcon strokeWidth={2} className="w-6" />
-                  </Button>
+                  />
                 </div>
+                <Button
+                  variant="text"
+                  className="flex justify-center items-center "
+                  onClick={() => {
+                    navigate("/device-profiles");
+                  }}
+                >
+                  <PlusCircleIcon strokeWidth={2} className="w-6" />
+                </Button>
               </div>
             </TabPanel>
             <TabPanel value="Attributes">
