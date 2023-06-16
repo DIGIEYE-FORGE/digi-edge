@@ -10,54 +10,34 @@ import {
   Alert,
 } from "@material-tailwind/react";
 import { useProvider } from "../../components/provider";
-import { AppContext } from "../../App";
+import { AppContext } from "../../utils/types";
 import { useState } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { z } from "zod";
-import { TRPCClientError } from "@trpc/client";
-
-const loginSchema = z.object({
-  email: z.string().email({
-    message: "please enter a valid email address",
-  }),
-  password: z.string().min(8, {
-    message: "password must be at least 8 characters long",
-  }),
-});
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "../../api/user";
+import { AxiosError } from "axios";
 
 function LoginPage() {
-  const { trpc, setAccessToken, setRefreshToken } = useProvider<AppContext>();
+  const { setAccessToken, setRefreshToken } = useProvider<AppContext>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
-  async function handleLogin() {
-    try {
-      const data = loginSchema.parse(loginData);
-      setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const { accessToken, refreshToken } = await trpc.auth.login.mutate({
-        email: data.email,
-        password: data.password,
-      });
+  const signInMutation = useMutation({
+    mutationFn: (data: any) => signIn(data),
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
+    },
+    onError: (error: AxiosError) => {
+      setError(error.message);
+      setIsLoading(false);
+    },
+  });
 
-      setAccessToken(refreshToken);
-      setRefreshToken(refreshToken);
-    } catch (e) {
-      console.error(e);
-      if (e instanceof z.ZodError) {
-        setError(e.errors[0].message);
-      } else if (e instanceof TRPCClientError) {
-        setError(e.message);
-      } else {
-        setError("something went wrong");
-      }
-    }
-    setIsLoading(false);
-  }
   return (
     <div
       className="flex min-h-screen justify-center items-center"
@@ -89,17 +69,18 @@ function LoginPage() {
             </Alert>
           )}
           <Input
-            label="Email"
+            label="username"
             size="lg"
             error={!!error && !error.includes("password")}
             onChange={(e) => {
-              setLoginData({ ...loginData, email: e.target.value });
+              setLoginData({ ...loginData, username: e.target.value });
             }}
           />
           <Input
             label="Password"
             size="lg"
-            error={!!error && !error.includes("email")}
+            type="password"
+            error={!!error && !error.includes("username")}
             onChange={(e) => {
               setLoginData({ ...loginData, password: e.target.value });
             }}
@@ -116,7 +97,10 @@ function LoginPage() {
             }`}
             size="lg"
             fullWidth
-            onClick={handleLogin}
+            onClick={() => {
+              setIsLoading(true);
+              signInMutation.mutate(loginData);
+            }}
           >
             {isLoading ? (
               <div className="h-6 aspect-square bg-white/20 rounded-full animate-pulse">
@@ -126,7 +110,7 @@ function LoginPage() {
               <span>Sign In</span>
             )}
           </Button>
-          <Typography variant="small" className="mt-6 flex justify-center">
+          {/* <Typography variant="small" className="mt-6 flex justify-center">
             Don't have an account?
             <Typography
               as="a"
@@ -137,7 +121,7 @@ function LoginPage() {
             >
               Sign up
             </Typography>
-          </Typography>
+          </Typography> */}
         </CardFooter>
       </Card>
     </div>

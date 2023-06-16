@@ -1,6 +1,11 @@
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { Card, Progress } from "@material-tailwind/react";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import ReactApexChart from "react-apexcharts";
+import { getDevices } from "../../../api/device";
+import { getStats } from "../../../api/utils";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+
 function MetricCard({
   title,
   children,
@@ -17,11 +22,26 @@ function MetricCard({
 }
 
 function Metrics() {
+  const [devicesQuery, statsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["devices"],
+        queryFn: () => getDevices({ include: { attributes: true } }),
+      },
+      {
+        queryKey: ["stats"],
+        queryFn: () => getStats(),
+      },
+    ],
+  });
+
   return (
     <>
       <MetricCard title="device total">
         <div className="bg-red-50 h-full flex-1 rounded-xl flex justify-between p-2 items-center">
-          <span className="text-2xl">851</span>
+          <span className="text-2xl">
+            {devicesQuery?.data?.totalResult || "0"}
+          </span>
           <span className="text-red-500 capitalize">devices</span>
         </div>
       </MetricCard>
@@ -31,21 +51,48 @@ function Metrics() {
             <span className="w-3 aspect-square rounded-2xl bg-green-600"></span>
             <span>online</span>
           </span>
-          <span className="text-xl font-bold">72</span>
+          <span className="text-xl font-bold">
+            {devicesQuery.data?.results.filter((device) => {
+              return device.attributes
+                ?.map((attr) => {
+                  if (attr.name === "isOnline" && attr.value == "true") {
+                    return true;
+                  }
+                  return false;
+                })
+                .filter((item) => item === true);
+            }).length || 0}
+          </span>
         </div>
         <div className="bg-gray-100 h-16 flex flex-col rounded-xl flex-1 justify-between gap-1 p-2 items-center">
           <span className="text-gray-600  text-sm flex items-center gap-1 capitalize">
             <span className="w-3 aspect-square rounded-2xl bg-gray-600"></span>
             <span>inactive</span>
           </span>
-          <span className="text-xl font-bold">72</span>
+          <span className="text-xl font-bold">
+            {(devicesQuery?.data?.totalResult || 0) -
+              (devicesQuery.data?.results.filter((device) => {
+                return device.attributes
+                  ?.map((attr) => {
+                    if (attr.name === "isOnline" && attr.value == "true") {
+                      return true;
+                    }
+                    return false;
+                  })
+                  .filter((item) => item === true);
+              }).length || 0)}
+          </span>
         </div>
         <div className="bg-red-50 h-16 flex flex-col rounded-xl flex-1 justify-between gap-1 p-2 items-center">
           <span className="text-red-600  text-sm flex items-center gap-1 capitalize">
             <span className="w-3 aspect-square rounded-2xl bg-red-600"></span>
             <span>offline</span>
           </span>
-          <span className="text-xl font-bold">72</span>
+          <span className="text-xl font-bold">
+            {devicesQuery.data?.results.filter((device) => {
+              return device.blacklisted === true;
+            }).length || 0}
+          </span>
         </div>
       </MetricCard>
       <MetricCard title="messages">
@@ -66,9 +113,20 @@ function Metrics() {
       </MetricCard>
       <MetricCard title="total storage">
         <div className="bg-green-50 h-full flex-1 rounded-xl flex justify-between p-2 items-center">
-          <span className="text-2xl">851</span>
+          <span className="text-2xl w-10 -h-10 flex justify-center items-center">
+            <CircularProgressbar
+              value={statsQuery.data?.diskSpace}
+              styles={buildStyles({
+                pathColor: "#2BC6B7",
+                trailColor: "#eee",
+              })}
+            />
+            <span className="absolute text-[0.8rem] font-semibold">
+              {statsQuery.data?.diskSpace}%
+            </span>
+          </span>
           <span className="text-blue-900 capitalize text-lg font-bold">
-            500 GB
+            {(statsQuery.data?.diskSize / Math.pow(10, 9)).toFixed(2)} GB
           </span>
         </div>
       </MetricCard>
@@ -77,19 +135,24 @@ function Metrics() {
 }
 
 function CpuUsage() {
+  const { data } = useQuery({
+    queryKey: ["stats"],
+    queryFn: () => getStats(),
+  });
+  console.log({ data });
   return (
     <Card className="flex flex-col  p-3 row-span-2 text-blue-900">
       <div className="title capitalize">cpu usage %</div>
       <div className="flex-1 flex items-center justify-center">
         <ReactApexChart
           height={300}
-          series={[120, 10]}
+          series={[data?.cpuUsage, 100 - data?.cpuUsage]}
           options={{
             labels: ["Used", "Free"],
             chart: {
               type: "donut",
             },
-            colors: ["#00B4CA", "#00607B"],
+            colors: ["#00607B", "#00B4CA"],
             legend: {
               position: "bottom",
             },
@@ -102,13 +165,18 @@ function CpuUsage() {
 }
 
 function MemoryUsage() {
+  const { data } = useQuery({
+    queryKey: ["stats"],
+    queryFn: () => getStats(),
+  });
+  console.log({ data });
   return (
     <Card className="flex flex-col  p-3 row-span-2 text-blue-900">
       <div className="title capitalize">memory usage %</div>
       <div className="flex-1 flex items-center justify-center">
         <ReactApexChart
           height={300}
-          series={[44, 55]}
+          series={[data?.memUsage, 100 - data?.memUsage]}
           options={{
             labels: ["Used", "Free"],
             chart: {

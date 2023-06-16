@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button,
   Typography,
@@ -13,51 +13,132 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, { Column } from "../../../components/data-grid";
 import Provider, { useProvider } from "../../../components/provider";
-import { AppContext } from "../../../App";
+import {
+  AppContext,
+  DeviceProfile,
+  Group,
+  MqttServer,
+} from "../../../utils/types.ts";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
-import {
-  Device as Data,
-  Decoder,
-  DeviceType,
-  Protocol,
-  State,
-} from "../../../utils/types.ts";
+import { Devices as Data } from "../../../utils/types.ts";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { deleteDevice, getDevices } from "../../../api/device/index.ts";
+import { getGroups } from "../../../api/group/index.ts";
+import { getMqttServers } from "../../../api/mqtt-server/index.ts";
+import { getDeviceProfiles } from "../../../api/device-profile/index.ts";
+
+const defaultData: Data = {
+  name: "",
+  serial: "",
+};
 
 export type Context = AppContext & {
   data: Data | null;
   setData: React.Dispatch<Data | null>;
   fetchRows: () => Promise<void>;
-  deviceTypes: DeviceType[];
-  fetchDeviceTypes: () => Promise<void>;
-  protocols: Protocol[];
-  fetchProtocols: () => Promise<void>;
-  decoders: Decoder[];
-  fetchDecoders: () => Promise<void>;
+  deviceProfiles: DeviceProfile[];
+  groups: Group[];
+  mqttServers: MqttServer[];
 };
 export function DeviceProfilePage() {
   const context = useProvider<AppContext>();
-  const { trpc, handleConfirm } = context;
+  const { handleConfirm } = context;
   const [data, setData] = React.useState<Data | null>(null);
+  const [groups, setGroups] = React.useState<Group[]>([]);
+  const [mqttServers, setMqttServers] = React.useState<MqttServer[]>([]);
+  const [deviceProfiles, setDeviceProfiles] = React.useState<DeviceProfile[]>(
+    []
+  );
+
   const [rows, setRows] = React.useState<Data[]>([]);
-  const [fetchingState, setFetchingState] = useState<State>("idle");
+  const [refetch, setRefetch] = useState<{
+    device: boolean;
+    group: boolean;
+    deviceProfile: boolean;
+    mqttServer: boolean;
+  }>({
+    device: true,
+    group: true,
+    deviceProfile: true,
+    mqttServer: true,
+  });
 
-  const fetchRows = useCallback(async () => {
-    setFetchingState("loading");
-    await new Promise((r) => setTimeout(r, 500));
-    try {
-      const res = await trpc.device.findMany.query();
-      setFetchingState("idle");
-      setRows(res);
-    } catch (error) {
-      console.error(error);
-      setFetchingState("error");
-    }
-  }, [trpc]);
+  const [deviceQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["devices"],
+        queryFn: () =>
+          getDevices({
+            include: { attributes: true },
+          }),
+        onSuccess: (data: any) => {
+          setRows(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              device: false,
+            };
+          });
+        },
+        enabled: refetch.device,
+      },
+      {
+        queryKey: ["groups"],
+        queryFn: () => getGroups(),
+        onSuccess: (data: any) => {
+          setGroups(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              group: false,
+            };
+          });
+        },
+        enabled: refetch.group,
+      },
+      {
+        queryKey: ["mqtt-servers"],
+        queryFn: () => getMqttServers(),
+        onSuccess: (data: any) => {
+          setMqttServers(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              mqttServer: false,
+            };
+          });
+        },
+        enabled: refetch.mqttServer,
+      },
+      {
+        queryKey: ["device-profiles"],
+        queryFn: () => getDeviceProfiles(),
+        onSuccess: (data: any) => {
+          setDeviceProfiles(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              deviceProfile: false,
+            };
+          });
+        },
+        enabled: refetch.deviceProfile,
+      },
+    ],
+  });
 
-  useEffect(() => {
-    fetchRows();
-  }, []);
+  const deviceMutation = useMutation({
+    mutationFn: (id: number) => deleteDevice(id),
+    onSuccess: () => {
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          device: true,
+        };
+      });
+    },
+  });
 
   const columns: Column<Data>[] = useMemo(
     () =>
@@ -97,8 +178,7 @@ export function DeviceProfilePage() {
                     onConfirm: async () => {
                       if (!row.id) return;
                       try {
-                        await trpc.device.delete.mutate(row.id);
-                        fetchRows();
+                        deviceMutation.mutate(row.id);
                       } catch (error) {
                         console.error(error);
                       }
@@ -121,7 +201,10 @@ export function DeviceProfilePage() {
         ...context,
         data,
         setData,
-        fetchRows,
+        getDevices,
+        deviceProfiles,
+        groups,
+        mqttServers,
       }}
     >
       <div className="h-full flex flex-col gap-4">
@@ -147,8 +230,8 @@ export function DeviceProfilePage() {
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
             rows={rows}
             columns={columns}
-            loading={fetchingState === "loading"}
-            error={fetchingState === "error"}
+            loading={deviceQuery.isLoading}
+            error={deviceQuery.isError}
           ></DataGrid>
           <Pagination
             className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
@@ -156,10 +239,10 @@ export function DeviceProfilePage() {
               page: 1,
               perPage: 5,
             }}
-            total={500}
+            total={deviceQuery.data?.totalResult || 0}
           />
         </Card>
-        <AddEdit />
+        <AddEdit setRefetch={setRefetch} />
       </div>
     </Provider>
   );

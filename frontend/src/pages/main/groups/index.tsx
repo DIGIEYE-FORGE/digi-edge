@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button,
   Typography,
@@ -13,10 +13,12 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, { Column } from "../../../components/data-grid";
 import Provider, { useProvider } from "../../../components/provider";
-import { AppContext } from "../../../App";
+import { AppContext } from "../../../utils/types";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
-import { Group, State } from "../../../utils/types.ts";
+import { Group } from "../../../utils/types.ts";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { deleteGroup, getGroups } from "../../../api/group";
 
 const defaultGroup: Group = {
   name: "",
@@ -31,26 +33,27 @@ export type GroupsPageContext = AppContext & {
 
 export function GroupsPage() {
   const context = useProvider<AppContext>();
-  const { trpc, handleConfirm } = context;
+  const { handleConfirm } = context;
   const [group, setGroup] = React.useState<Group | null>(null);
   const [rows, setRows] = React.useState<Group[]>([]);
-  const [fetchingState, setFetchingState] = useState<State>("idle");
+  const [refetch, setRefetch] = useState<boolean>(true);
 
-  const getGroups = useCallback(async () => {
-    setFetchingState("loading");
-    await new Promise((r) => setTimeout(r, 500));
-    try {
-      const groups = await trpc.group.findMany.query();
-      setFetchingState("idle");
-      setRows(groups);
-    } catch (error) {
-      setFetchingState("error");
-    }
-  }, [trpc]);
+  const { data, isError, isLoading } = useQuery({
+    queryKey: ["groups"],
+    queryFn: () => getGroups(),
+    onSuccess: (data) => {
+      setRows(data.results);
+      setRefetch(false);
+    },
+    enabled: refetch,
+  });
 
-  useEffect(() => {
-    getGroups();
-  }, []);
+  const groupMutation = useMutation({
+    mutationFn: (id: number) => deleteGroup(id),
+    onSuccess: () => {
+      setRefetch(true);
+    },
+  });
 
   const columns: Column<Group>[] = useMemo(
     () =>
@@ -94,12 +97,11 @@ export function GroupsPage() {
                 onClick={() => {
                   handleConfirm({
                     title: "Delete Group!",
-                    body: "Are you Sure do you want to precede. this action is irriversible",
+                    body: "Are you Sure do you want to precede. this action is irreversible",
                     onConfirm: async () => {
                       if (!row.id) return;
                       try {
-                        await trpc.group.delete.mutate(row.id);
-                        getGroups();
+                        groupMutation.mutate(row.id);
                       } catch (error) {
                         console.error(error);
                       }
@@ -147,8 +149,8 @@ export function GroupsPage() {
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
             rows={rows}
             columns={columns}
-            loading={fetchingState === "loading"}
-            error={fetchingState === "error"}
+            loading={isLoading}
+            error={isError}
           ></DataGrid>
           <Pagination
             className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
@@ -156,10 +158,10 @@ export function GroupsPage() {
               page: 1,
               perPage: 5,
             }}
-            total={500}
+            total={data?.totalResult || 0}
           />
         </Card>
-        <AddEdit />
+        <AddEdit setRefetch={setRefetch} />
       </div>
     </Provider>
   );

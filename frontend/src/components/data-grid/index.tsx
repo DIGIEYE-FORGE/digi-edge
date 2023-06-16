@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo } from "react";
 import Provider, { useProvider } from "../provider";
-import { stringify } from "../../utils";
+import { stringify } from "../../utils/functions";
 
 type Row = Record<string, unknown>;
 

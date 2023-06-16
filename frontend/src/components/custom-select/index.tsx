@@ -30,7 +30,7 @@ function CustomSelect({
         className={`peer bg-transparent w-full border-none outline-none  ${
           value ? "" : "text-blue-gray-500 focus:text-inherit"
         } `}
-        value={value}
+        value={value || "Select"}
         onChange={(e) => {
           onChange(e.target.value);
         }}

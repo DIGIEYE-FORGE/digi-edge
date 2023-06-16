@@ -17,23 +17,41 @@ import Drawer from "../../../../components/drawer";
 import { useState } from "react";
 import { Decoder, DeviceType, Protocol } from "../../../../utils/types";
 import CustomSelect from "../../../../components/custom-select";
+import { useMutation } from "@tanstack/react-query";
+import { addDeviceType } from "../../../../api/device-type";
+import { addProtocol } from "../../../../api/protocol";
+import { addDecoder } from "../../../../api/decoder";
+import {
+  addDeviceProfile,
+  updateDeviceProfile,
+} from "../../../../api/device-profile";
 
-function AddDeviceType() {
-  const { trpc, fetchDeviceTypes } = useProvider<Context>();
+interface Props {
+  setRefetch: React.Dispatch<
+    React.SetStateAction<{
+      deviceType: boolean;
+      protocol: boolean;
+      decoder: boolean;
+      deviceProfile: boolean;
+    }>
+  >;
+}
+
+function AddDeviceType({ setRefetch }: Props) {
   const [addDeviceData, setDeviceTypeData] = useState<DeviceType | null>(null);
-  async function addDeviceType() {
-    if (!addDeviceData) {
-      console.error("No device type to add");
-      return;
-    }
-    try {
-      await trpc.deviceType.create.mutate(addDeviceData);
+
+  const deviceTypeMutation = useMutation({
+    mutationFn: () => addDeviceType(addDeviceData),
+    onSuccess: () => {
       setDeviceTypeData(null);
-      fetchDeviceTypes();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          deviceType: true,
+        };
+      });
+    },
+  });
 
   return (
     <>
@@ -67,7 +85,11 @@ function AddDeviceType() {
           <Button variant="text" color="red" className="mr-1">
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={addDeviceType}>
+          <Button
+            variant="gradient"
+            color="green"
+            onClick={() => deviceTypeMutation.mutate()}
+          >
             save
           </Button>
         </DialogFooter>
@@ -76,22 +98,21 @@ function AddDeviceType() {
   );
 }
 
-function AddProtocol() {
-  const { trpc, fetchProtocols } = useProvider<Context>();
+function AddProtocol({ setRefetch }: Props) {
   const [addProtocolData, setProtocolData] = useState<Protocol | null>(null);
-  async function addProtocol() {
-    if (!addProtocolData) {
-      console.error("No protocol to add");
-      return;
-    }
-    try {
-      await trpc.protocol.create.mutate(addProtocolData);
+
+  const protocolMutation = useMutation({
+    mutationFn: () => addProtocol(addProtocolData),
+    onSuccess: () => {
       setProtocolData(null);
-      fetchProtocols();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          protocol: true,
+        };
+      });
+    },
+  });
 
   return (
     <>
@@ -125,7 +146,11 @@ function AddProtocol() {
           <Button variant="text" color="red" className="mr-1">
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={addProtocol}>
+          <Button
+            variant="gradient"
+            color="green"
+            onClick={() => protocolMutation.mutate()}
+          >
             save
           </Button>
         </DialogFooter>
@@ -134,22 +159,21 @@ function AddProtocol() {
   );
 }
 
-function AddDocoder() {
-  const { trpc, fetchDecoders } = useProvider<Context>();
+function AddDocoder({ setRefetch }: Props) {
   const [addDecoderData, setDecoderData] = useState<Decoder | null>(null);
-  async function addDecoder() {
-    if (!addDecoderData) {
-      console.error("No decoder to add");
-      return;
-    }
-    try {
-      await trpc.decoder.create.mutate(addDecoderData);
+
+  const decoderMutation = useMutation({
+    mutationFn: () => addDecoder(addDecoderData),
+    onSuccess: () => {
       setDecoderData(null);
-      fetchDecoders();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          decoder: true,
+        };
+      });
+    },
+  });
 
   return (
     <>
@@ -205,7 +229,11 @@ function AddDocoder() {
           <Button variant="text" color="red" className="mr-1">
             <span>Cancel</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={addDecoder}>
+          <Button
+            variant="gradient"
+            color="green"
+            onClick={() => decoderMutation.mutate()}
+          >
             save
           </Button>
         </DialogFooter>
@@ -214,45 +242,41 @@ function AddDocoder() {
   );
 }
 
-function AddEdit() {
-  const { data, setData, trpc, fetchRows, deviceTypes, protocols, decoders } =
+function AddEdit({ setRefetch }: Props) {
+  const { data, setData, deviceTypes, protocols, decoders } =
     useProvider<Context>();
+
+  const deviceProfileMutation = useMutation({
+    mutationFn: () => handleSave(),
+    onSuccess: () => {
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          deviceProfile: true,
+        };
+      });
+      setData(null);
+    },
+  });
 
   async function handleSave() {
     if (!data) {
       console.error("No group to save");
       return;
     }
+    const { id, createdAt, updatedAt, decoder, deviceType, protocol, ...rest } =
+      data;
     try {
       if (data.id) {
-        console.log({ data });
-        await trpc.deviceProfile.update.mutate({
-          id: data.id,
-          data: {
-            name: data.name,
-            description: data.description || undefined,
-            deviceTypeId: data.deviceTypeId || undefined,
-            protocolId: data.protocolId || undefined,
-            decoderId: data.decoderId || undefined,
-            credentialsType: data.credentialsType || undefined,
-          },
-        });
+        updateDeviceProfile(id, rest);
       } else {
-        await trpc.deviceProfile.create?.mutate({
-          name: data.name,
-          description: data.description || undefined,
-          deviceTypeId: data.deviceTypeId || undefined,
-          protocolId: data.protocolId || undefined,
-          decoderId: data.decoderId || undefined,
-          credentialsType: data.credentialsType || undefined,
-        });
+        addDeviceProfile(rest);
       }
-      setData(null);
-      fetchRows();
     } catch (e) {
       console.error(e);
     }
   }
+
   return (
     <Drawer
       className=" flex flex-col"
@@ -261,7 +285,7 @@ function AddEdit() {
     >
       <div className="p-2 md:p-4 flex items-center justify-between border-b">
         <Typography variant="h5" color="blue">
-          {data?.id ? "Edit" : "Add"} MQTT Server
+          {data?.id ? "Edit" : "Add"} Device Profiles
         </Typography>
         <IconButton
           variant="text"
@@ -329,7 +353,7 @@ function AddEdit() {
               }))}
             />
           </div>
-          <AddDeviceType />
+          <AddDeviceType setRefetch={setRefetch} />
         </div>
         <div className="flex gap-2">
           <div className="flex-1">
@@ -348,7 +372,7 @@ function AddEdit() {
               }))}
             />
           </div>
-          <AddProtocol />
+          <AddProtocol setRefetch={setRefetch} />
         </div>
         <div className="flex gap-2">
           <div className="flex-1">
@@ -367,17 +391,21 @@ function AddEdit() {
               }))}
             />
           </div>
-          <AddDocoder />
+          <AddDocoder setRefetch={setRefetch} />
         </div>
       </div>
-      <span className="whitespace-break-spaces">
+      {/* <span className="whitespace-break-spaces">
         {data && Object.entries(data).map(([k, v]) => `${k}: ${v}\n`)}
-      </span>
+      </span> */}
       <div className="flex p-4 justify-between">
         <Button variant="text" color="red" onClick={() => setData(null)}>
           cancel
         </Button>
-        <Button variant="filled" color="green" onClick={handleSave}>
+        <Button
+          variant="filled"
+          color="green"
+          onClick={() => deviceProfileMutation.mutate()}
+        >
           saved
         </Button>
       </div>

@@ -17,7 +17,7 @@ import {
 } from "@material-tailwind/react";
 import React from "react";
 import { useProvider } from "../../provider";
-import { AppContext } from "../../../App";
+import { AppContext } from "../../../utils/types";
 
 function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);

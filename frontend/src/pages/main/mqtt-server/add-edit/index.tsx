@@ -8,32 +8,39 @@ import {
 import { useProvider } from "../../../../components/provider";
 import { Context } from "..";
 import Drawer from "../../../../components/drawer";
+import { useMutation } from "@tanstack/react-query";
+import { addMqttServer, updateMqttServer } from "../../../../api/mqtt-server";
 
-function AddEditGroup() {
-  const { data, setData, trpc, fetchRows } = useProvider<Context>();
+interface Props {
+  setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function AddEditGroup({ setRefetch }: Props) {
+  const { mqttServer, setMqttServer } = useProvider<Context>();
+
+  const mqttServerMutation = useMutation({
+    mutationFn: () => handleSave(),
+    onSuccess: () => {
+      setRefetch(true);
+      setMqttServer(null);
+    },
+  });
 
   async function handleSave() {
-    if (!data) {
-      console.error("No group to save");
+    if (!mqttServer) {
+      console.error("No mqtt server to save");
       return;
     }
 
+    const { id, createdAt, updatedAt, ...rest } = mqttServer;
     try {
-      const { id, ...rest } = data;
       if (id) {
-        console.log("craeting");
-        await trpc.mqttServer.update.mutate({
-          id,
-          serial: "SERIAL",
-          data: rest,
-        });
-      } else {
         console.log("updating");
-
-        await trpc.mqttServer.create?.mutate(rest);
+        return await updateMqttServer(id, rest);
+      } else {
+        console.log("creating");
+        return await addMqttServer(rest);
       }
-      setData(null);
-      fetchRows();
     } catch (e) {
       console.error(e);
     }
@@ -41,17 +48,17 @@ function AddEditGroup() {
   return (
     <Drawer
       className=" flex flex-col"
-      open={!!data}
-      onClose={() => setData(null)}
+      open={!!mqttServer}
+      onClose={() => setMqttServer(null)}
     >
       <div className="p-4 flex items-center justify-between border-b">
         <Typography variant="h5" color="blue">
-          {data?.id ? "Edit" : "Add"} MQTT Server
+          {mqttServer?.id ? "Edit" : "Add"} MQTT Server
         </Typography>
         <IconButton
           variant="text"
           color="blue-gray"
-          onClick={() => setData(null)}
+          onClick={() => setMqttServer(null)}
         >
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
@@ -61,10 +68,10 @@ function AddEditGroup() {
           <Input
             label="Client Id"
             type="number"
-            value={data?.clientId || ""}
+            value={mqttServer?.clientId || ""}
             onChange={(e) => {
-              setData({
-                ...data!,
+              setMqttServer({
+                ...mqttServer!,
                 clientId: parseInt(e.target.value),
               });
             }}
@@ -74,10 +81,10 @@ function AddEditGroup() {
           <Input
             label="Username"
             type="text"
-            value={data?.username || ""}
+            value={mqttServer?.username || ""}
             onChange={(e) => {
-              setData({
-                ...data!,
+              setMqttServer({
+                ...mqttServer!,
                 username: e.target.value,
               });
             }}
@@ -86,10 +93,10 @@ function AddEditGroup() {
         <div>
           <Input
             label="Password"
-            value={data?.password || ""}
+            value={mqttServer?.password || ""}
             onChange={(e) => {
-              setData({
-                ...data!,
+              setMqttServer({
+                ...mqttServer!,
                 password: e.target.value,
               });
             }}
@@ -98,10 +105,10 @@ function AddEditGroup() {
         <div>
           <Input
             label="Host"
-            value={data?.host || ""}
+            value={mqttServer?.host || ""}
             onChange={(e) => {
-              setData({
-                ...data!,
+              setMqttServer({
+                ...mqttServer!,
                 host: e.target.value,
               });
             }}
@@ -110,10 +117,10 @@ function AddEditGroup() {
         <div>
           <Input
             label="topic"
-            value={data?.topic || ""}
+            value={mqttServer?.topic || ""}
             onChange={(e) => {
-              setData({
-                ...data!,
+              setMqttServer({
+                ...mqttServer!,
                 topic: e.target.value,
               });
             }}
@@ -124,10 +131,14 @@ function AddEditGroup() {
         {data && Object.entries(data).map(([k, v]) => `${k}: ${v}\n`)}
       </span> */}
       <div className="flex p-4 justify-between">
-        <Button variant="text" color="red" onClick={() => setData(null)}>
+        <Button variant="text" color="red" onClick={() => setMqttServer(null)}>
           cancel
         </Button>
-        <Button variant="filled" color="green" onClick={handleSave}>
+        <Button
+          variant="filled"
+          color="green"
+          onClick={() => mqttServerMutation.mutate()}
+        >
           save
         </Button>
       </div>

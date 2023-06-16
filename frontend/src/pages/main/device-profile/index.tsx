@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button,
   Typography,
@@ -13,7 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import DataGrid, { Column } from "../../../components/data-grid";
 import Provider, { useProvider } from "../../../components/provider";
-import { AppContext } from "../../../App";
+import { AppContext, DeviceProfile } from "../../../utils/types";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
 import {
@@ -21,8 +21,15 @@ import {
   Decoder,
   DeviceType,
   Protocol,
-  State,
 } from "../../../utils/types.ts";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { getDecoders } from "../../../api/decoder/index.ts";
+import {
+  deleteDeviceProfile,
+  getDeviceProfiles,
+} from "../../../api/device-profile/index.ts";
+import { getDeviceTypes } from "../../../api/device-type/index.ts";
+import { getProtocols } from "../../../api/protocol/index.ts";
 
 const defaultData: Data = {
   name: "",
@@ -50,61 +57,99 @@ export type Context = AppContext & {
 
 export function DeviceProfilePage() {
   const context = useProvider<AppContext>();
-  const { trpc, handleConfirm } = context;
+  const { handleConfirm } = context;
   const [data, setData] = React.useState<Data | null>(null);
   const [rows, setRows] = React.useState<Data[]>([]);
-  const [fetchingState, setFetchingState] = useState<State>("idle");
   const [deviceTypes, setDeviceTypes] = React.useState<DeviceType[]>([]);
   const [protocols, setProtocols] = React.useState<Protocol[]>([]);
   const [decoders, setDecoders] = React.useState<Decoder[]>([]);
+  const [refetch, setRefetch] = useState<{
+    deviceType: boolean;
+    protocol: boolean;
+    decoder: boolean;
+    deviceProfile: boolean;
+  }>({
+    deviceType: true,
+    protocol: true,
+    decoder: true,
+    deviceProfile: true,
+  });
 
-  const fetchDeviceTypes = useCallback(async () => {
-    await new Promise((r) => setTimeout(r, 500));
-    try {
-      const res = await trpc.deviceType.findMany.query();
-      setDeviceTypes(res);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [trpc]);
+  const [deviceProfileQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["device-profiles"],
+        queryFn: () => getDeviceProfiles(),
+        onSuccess: (data: {
+          totalResult: number;
+          results: DeviceProfile[];
+        }) => {
+          setRows(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              deviceProfile: false,
+            };
+          });
+        },
+        enabled: refetch.deviceProfile,
+      },
+      {
+        queryKey: ["device-types"],
+        queryFn: () => getDeviceTypes(),
+        onSuccess: (data: { totalResult: number; results: DeviceType[] }) => {
+          setDeviceTypes(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              deviceType: false,
+            };
+          });
+        },
+        enabled: refetch.deviceType,
+      },
+      {
+        queryKey: ["protocols"],
+        queryFn: () => getProtocols(),
+        onSuccess: (data: { totalResult: number; results: Protocol[] }) => {
+          setProtocols(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              protocol: false,
+            };
+          });
+        },
+        enabled: refetch.protocol,
+      },
+      {
+        queryKey: ["decoders"],
+        queryFn: () => getDecoders(),
+        onSuccess: (data: { totalResult: number; results: Decoder[] }) => {
+          setDecoders(data.results);
+          setRefetch((prev) => {
+            return {
+              ...prev,
+              decoder: false,
+            };
+          });
+        },
+        enabled: refetch.decoder,
+      },
+    ],
+  });
 
-  const fetchProtocols = useCallback(async () => {
-    try {
-      const res = await trpc.protocol.findMany.query();
-      setProtocols(res);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [trpc]);
-
-  const fetchDecoders = useCallback(async () => {
-    try {
-      const res = await trpc.decoder.findMany.query();
-      setDecoders(res);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [trpc]);
-
-  const fetchRows = useCallback(async () => {
-    setFetchingState("loading");
-    await new Promise((r) => setTimeout(r, 500));
-    try {
-      const res = await trpc.deviceProfile.findMany.query();
-      setFetchingState("idle");
-      setRows(res);
-    } catch (error) {
-      console.error(error);
-      setFetchingState("error");
-    }
-  }, [trpc]);
-
-  useEffect(() => {
-    fetchRows();
-    fetchDeviceTypes();
-    fetchProtocols();
-    fetchDecoders();
-  }, []);
+  const deviceProfileMutation = useMutation({
+    mutationFn: (id: number) => deleteDeviceProfile(id),
+    onSuccess: () => {
+      setRefetch((prev) => {
+        return {
+          ...prev,
+          deviceProfile: true,
+        };
+      });
+    },
+  });
 
   const columns: Column<Data>[] = useMemo(
     () =>
@@ -161,8 +206,7 @@ export function DeviceProfilePage() {
                     onConfirm: async () => {
                       if (!row.id) return;
                       try {
-                        await trpc.mqttServer.delete.mutate(row.id);
-                        fetchRows();
+                        deviceProfileMutation.mutate(row.id);
                       } catch (error) {
                         console.error(error);
                       }
@@ -185,13 +229,9 @@ export function DeviceProfilePage() {
         ...context,
         data,
         setData,
-        fetchRows,
         deviceTypes,
-        fetchDeviceTypes,
         protocols,
-        fetchProtocols,
         decoders,
-        fetchDecoders,
       }}
     >
       <div className="h-full flex flex-col gap-4">
@@ -217,8 +257,8 @@ export function DeviceProfilePage() {
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
             rows={rows}
             columns={columns}
-            loading={fetchingState === "loading"}
-            error={fetchingState === "error"}
+            loading={deviceProfileQuery.isLoading}
+            error={deviceProfileQuery.isError}
           ></DataGrid>
           <Pagination
             className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
@@ -226,10 +266,10 @@ export function DeviceProfilePage() {
               page: 1,
               perPage: 5,
             }}
-            total={500}
+            total={deviceProfileQuery.data?.totalResult || 0}
           />
         </Card>
-        <AddEdit />
+        <AddEdit setRefetch={setRefetch} />
       </div>
     </Provider>
   );

@@ -9,9 +9,29 @@ import {
 import { useProvider } from "../../../../components/provider";
 import { GroupsPageContext } from "..";
 import Drawer from "../../../../components/drawer";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { addGroup, updateGroup } from "../../../../api/group";
+import { getMqttServers } from "../../../../api/mqtt-server";
 
-function AddEditGroup() {
-  const { group, setGroup, trpc, getGroups } = useProvider<GroupsPageContext>();
+interface Props {
+  setRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function AddEditGroup({ setRefetch }: Props) {
+  const { group, setGroup } = useProvider<GroupsPageContext>();
+
+  const { data } = useQuery({
+    queryKey: ["mqtt-servers"],
+    queryFn: () => getMqttServers(),
+  });
+
+  const groupMutation = useMutation({
+    mutationFn: () => handleSave(),
+    onSuccess: () => {
+      setRefetch(true);
+      setGroup(null);
+    },
+  });
 
   async function handleSave() {
     if (!group) {
@@ -19,30 +39,21 @@ function AddEditGroup() {
       return;
     }
 
+    const { id, createdAt, updatedAt, ...rest } = group;
+
     try {
       if (group.id) {
-        console.log("craeting");
-        await trpc.group.update.mutate({
-          id: group.id,
-          data: {
-            name: group.name,
-            type: group.type,
-          },
-        });
-      } else {
         console.log("updating");
-
-        await trpc.group?.create?.mutate({
-          name: group.name,
-          type: group.type,
-        });
+        return await updateGroup(id, rest);
+      } else {
+        console.log("creating");
+        return await addGroup(rest);
       }
-      setGroup(null);
-      getGroups();
     } catch (e) {
       console.error(e);
     }
   }
+
   return (
     <Drawer
       placement="right"
@@ -87,12 +98,39 @@ function AddEditGroup() {
             }}
           />
         </div>
+        <div>
+          <select
+            value={group?.mqttServerId}
+            className={
+              "w-full h-full bg-transparent text-blue-gray-700 outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all" +
+              " placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2" +
+              "text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-blue-500"
+            }
+            onChange={(e) => {
+              setGroup({
+                ...group!,
+                mqttServerId: parseInt(e.target.value) || undefined,
+              });
+            }}
+          >
+            <option value="">Select server</option>
+            {data?.results.map((server) => (
+              <option key={server.id} value={server.id}>
+                {server.username}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="flex p-4 justify-between">
         <Button variant="text" color="red" onClick={() => setGroup(null)}>
           cancel
         </Button>
-        <Button variant="filled" color="green" onClick={handleSave}>
+        <Button
+          variant="filled"
+          color="green"
+          onClick={() => groupMutation.mutate()}
+        >
           save
         </Button>
       </div>

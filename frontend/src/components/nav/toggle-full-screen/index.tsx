@@ -4,7 +4,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { IconButton } from "@material-tailwind/react";
 import { useState } from "react";
-import { toggleFullScreen } from "../../../utils";
+import { toggleFullScreen } from "../../../utils/functions";
 
 function ToggleFullScreen() {
   const [isFullScreen, setIsFullScreen] = useState(false);

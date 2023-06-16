@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Provider from "./components/provider";
 import {
@@ -10,50 +10,17 @@ import {
 } from "@material-tailwind/react";
 import ComplexNavbar from "./components/nav";
 import { BuildingLibraryIcon, HomeIcon } from "@heroicons/react/24/outline";
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
-import type { AppRouter } from "../../server/src/main";
+
 import useLocalStorage from "./hooks/use-local-storage";
+
 import Loader from "./components/loader";
 import LoginPage from "./pages/login";
-import { State } from "./utils/types";
+import { ConfirmDialogData, State, User } from "./utils/types";
+import { defaultConfirmDialogData } from "./utils/data";
 
-export type AppContext = {
-  secondaryMenu: boolean;
-  setSecondaryMenu: React.Dispatch<React.SetStateAction<boolean>>;
-  handleConfirm: (data: ConfirmDialogData) => void;
-  accessToken: string;
-  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
-  refreshToken: string;
-  setRefreshToken: React.Dispatch<React.SetStateAction<string>>;
-  trpc: ReturnType<typeof createTRPCProxyClient<AppRouter>>;
-  loginState: State;
-  setLoginState: React.Dispatch<React.SetStateAction<State>>;
-  user: User | null;
-};
-
-type ConfirmDialogData = {
-  title?: string;
-  body?: string;
-  confrimText?: string;
-  cancelText?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-};
-
-export type User = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  [key: string]: any;
-};
-
-const defaultConfirmDialogData = {
-  title: "Confirm",
-  body: "Are you sure?",
-  confrimText: "Confirm",
-  cancelText: "Cancel",
-};
+import { currentUser } from "./api/user";
+import "./utils/config";
+import axios from "axios";
 
 function App() {
   const [secondaryMenu, setSecondaryMenu] = useState(window.innerWidth > 1320);
@@ -61,9 +28,6 @@ function App() {
   const [loginState, setLoginState] = useState<State>("loading");
   const [confirmDialogData, setConfirmDialogData] =
     useState<ConfirmDialogData | null>(null);
-  const handleClose = () => {
-    setConfirmDialogData(null);
-  };
 
   const [accessToken, setAccessToken] = useLocalStorage<string>(
     "accessToken",
@@ -74,39 +38,14 @@ function App() {
     ""
   );
 
-  const trpc = useMemo(() => {
-    return createTRPCProxyClient<AppRouter>({
-      links: [
-        httpBatchLink({
-          // url: "http://localhost:3000/trpc",
-          url: `http://${window.location.hostname}:3000/trpc`,
-          headers: {
-            authorization: `Bearer ${accessToken}`,
-          },
-        }),
-      ],
-    });
-  }, [accessToken]);
-
-  const verifyToken = useCallback(async () => {
-    if (!accessToken) setLoginState("error");
-    try {
-      // await new Promise((resolve) => setTimeout(resolve, 3000));
-      const data = await trpc.auth.verify.mutate({ accessToken });
-      setUser(data);
-      setLoginState("idle");
-    } catch (err) {
-      setLoginState("error");
-    }
-  }, [accessToken]);
-
-  useEffect(() => {
-    verifyToken();
-  }, [accessToken]);
+  const handleClose = () => {
+    setConfirmDialogData(null);
+  };
 
   const handleConfirm = (data: ConfirmDialogData) => {
     setConfirmDialogData({ ...defaultConfirmDialogData, ...data });
   };
+
   useEffect(() => {
     const resizeEvent = () => {
       if (window.innerWidth > 1320) setSecondaryMenu(true);
@@ -115,6 +54,20 @@ function App() {
     window.addEventListener("resize", resizeEvent);
     return () => window.removeEventListener("resize", resizeEvent);
   }, []);
+
+  useEffect(() => {
+    if (!accessToken || !refreshToken) {
+      setLoginState("error");
+      return;
+    }
+    axios.defaults.headers.common["Authorization"] = `Bearer ${JSON.parse(
+      window.localStorage.getItem("accessToken") || "{}"
+    )}`;
+    (async () => {
+      setUser(await currentUser());
+    })();
+    setLoginState("idle");
+  }, [accessToken]);
 
   if (loginState === "loading")
     return (
@@ -133,7 +86,6 @@ function App() {
         setAccessToken,
         refreshToken,
         setRefreshToken,
-        trpc,
         loginState,
         setLoginState,
         user,
@@ -189,7 +141,7 @@ function App() {
                   setConfirmDialogData(null);
                 }}
               >
-                <span>{confirmDialogData?.confrimText}</span>
+                <span>{confirmDialogData?.confirmText}</span>
               </Button>
             </DialogFooter>
           </Dialog>

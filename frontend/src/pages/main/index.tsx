@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useProvider } from "../../components/provider";
-import { AppContext } from "../../App";
+import { AppContext } from "../../utils/types";
 
 import React from "react";
 import {

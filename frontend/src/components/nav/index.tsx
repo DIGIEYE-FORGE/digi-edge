@@ -1,7 +1,7 @@
 import { Navbar } from "@material-tailwind/react";
 import ScreenIndicator from "../screen-indicator";
 import ProfileMenu from "./profile";
-import ToggleFullScreen from "./toggle-full-screen/indes";
+import ToggleFullScreen from "./toggle-full-screen";
 import Notifications from "./notifications";
 
 // profile menu component
