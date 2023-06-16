@@ -26,9 +26,9 @@ const deviceRouter = router({
 		.query(async () => {
 			return await prisma.device.findMany({
 				include: {
-					deviceProfile: { select: { id: true, name: true, } },
+					deviceProfile: { select: { id: true, name: true, credentialsType: true } },
 					group: { select: { id: true, name: true, } },
-					mqttServer: { select: { id: true, username: true } },
+					mqttServer: true,
 					attributes: { select: { name: true, value: true } },
 					credential: { select: { id: true, username: true, isToken: true, password: true } },
 				}
@@ -83,16 +83,18 @@ const deviceRouter = router({
 			const { id } = input;
 			const { attributes, ...rest } = input.data;
 			const device = await prisma.device.findUnique({ where: { id } });
+			await prisma.attribute.deleteMany({ where: { deviceId: id } });
 			if (!device) throw new TRPCError({ code: 'NOT_FOUND', message: 'Device not found' });
 			return await prisma.device.update({
 				where: { id }, data: {
 					...rest,
 					attributes: attributes && {
-						upsert: Object.entries(attributes).map(([key, value]) => ({
-							where: { deviceId_name: { deviceId: id, name: key } },
-							update: { value },
-							create: { deviceId: id, name: key, value },
-						}))
+						createMany: {
+							data: Object.entries(attributes).map(([key, value]) => ({
+								name: key,
+								value,
+							}))
+						}
 					},
 				}
 			});

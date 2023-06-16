@@ -1,5 +1,3 @@
-import { AppRouter } from "../../../server/src/main";
-
 export type State = "idle" | "loading" | "error";
 
 
@@ -70,48 +68,23 @@ export type Name = {
 	name: string;
 }
 
-
-// export const createSchema = z.object({
-// 	id: z.number().optional(),
-// 	name: isBetween(2, 50),
-// 	serial: isBetween(2, 50),
-// 	isPassive: z.boolean().optional(),
-// 	isDecoded: z.boolean().optional(),
-// 	attributes: z.record(z.string()).optional(),
-// 	deviceProfileId: z.number().optional(),
-// 	mqttServerId: z.number().optional(),
-// 	groupId: z.number().optional(),
-// });
+export type Attribute = {
+	name: string;
+	value: string;
+	[key: string]: any;
+}
 
 export type Device = {
 	id?: number;
 	name: string;
 	serial: string;
 	deviceProfileId: number | null;
-	devicePofile: Name | null;
+	mqttServerId: number | null;
 	groupId: number | null;
-	group: Name | null;
 	isPassive: boolean;
 	isDecoded: boolean;
 	[key: string]: any;
 	createdAt?: string;
 	updatedAt?: string;
+	attributes: Attribute[];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

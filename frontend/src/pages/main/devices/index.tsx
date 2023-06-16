@@ -16,15 +16,22 @@ import Provider, { useProvider } from "../../../components/provider";
 import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
-import { Device as Data, Name, State } from "../../../utils/types.ts";
+import {
+  Device as Data,
+  MqttServer,
+  Name,
+  State,
+} from "../../../utils/types.ts";
 
 const defaultData: Data = {
   name: "",
   serial: "",
   deviceProfileId: null,
   groupId: null,
+  mqttServerId: null,
   isPassive: false,
   isDecoded: false,
+  attributes: [],
 };
 
 export type Context = AppContext & {
@@ -34,8 +41,9 @@ export type Context = AppContext & {
   fetchDecoders: () => Promise<void>;
   deviceProfiles: Name[];
   groups: Name[];
+  mqttServers: MqttServer[];
 };
-export function DeviceProfilePage() {
+export function DevicePages() {
   const context = useProvider<AppContext>();
   const { trpc, handleConfirm } = context;
   const [data, setData] = React.useState<Data | null>(null);
@@ -43,14 +51,17 @@ export function DeviceProfilePage() {
   const [fetchingState, setFetchingState] = useState<State>("idle");
   const [deviceProfiles, setDeviceProfiles] = useState<Name[]>([]);
   const [groups, setGroups] = useState<Name[]>([]);
+  const [mqttServers, setMqttServers] = useState<MqttServer[]>([]);
 
   const fetchStatic = useCallback(async () => {
     await new Promise((r) => setTimeout(r, 500));
     try {
       const deviceProfiles = await trpc.deviceProfile.getNames.query();
       const groups = await trpc.group.getNames.query();
+      const mqttServers = await trpc.mqttServer.findMany.query();
       setDeviceProfiles(deviceProfiles);
       setGroups(groups);
+      setMqttServers(mqttServers);
     } catch (error) {
       console.error(error);
     }
@@ -92,6 +103,10 @@ export function DeviceProfilePage() {
         {
           header: "deviceProfile",
           valueGetter: (row) => row?.deviceProfile?.name,
+        },
+        {
+          header: "mqttServerId",
+          valueGetter: (row) => row?.mqttServer?.host,
         },
         {
           header: "group",
@@ -155,6 +170,7 @@ export function DeviceProfilePage() {
         fetchRows,
         deviceProfiles,
         groups,
+        mqttServers,
       }}
     >
       <div className="h-full flex flex-col gap-4">
@@ -176,8 +192,8 @@ export function DeviceProfilePage() {
           <DataGrid
             cellMinWidth={150}
             className="text-left table-auto w-full "
-            headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
-            rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
+            headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-50 text-gray-900"
+            rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-50  hover:bg-blue-50/50 transition-colors"
             rows={rows}
             columns={columns}
             loading={fetchingState === "loading"}
@@ -198,4 +214,4 @@ export function DeviceProfilePage() {
   );
 }
 
-export default DeviceProfilePage;
+export default DevicePages;
