@@ -7,6 +7,8 @@ import {
   Input,
 } from "@material-tailwind/react";
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   PencilIcon,
   PlusCircleIcon,
   TrashIcon,
@@ -17,6 +19,7 @@ import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
 import { Group, State } from "../../../utils/types.ts";
+import { format } from "date-fns";
 
 const defaultGroup: Group = {
   name: "",
@@ -29,51 +32,145 @@ export type GroupsPageContext = AppContext & {
   getGroups: () => Promise<void>;
 };
 
+type OrderBy = {
+  field: "name" | "type" | "createdAt";
+  direction: "asc" | "desc";
+};
 export function GroupsPage() {
   const context = useProvider<AppContext>();
   const { trpc, handleConfirm } = context;
   const [group, setGroup] = React.useState<Group | null>(null);
   const [rows, setRows] = React.useState<Group[]>([]);
   const [fetchingState, setFetchingState] = useState<State>("idle");
+  const [orderBy, setOrderBy] = useState<OrderBy | undefined>();
+  const [search, setSearch] = useState<string>("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 5,
+  });
 
   const getGroups = useCallback(async () => {
     setFetchingState("loading");
     await new Promise((r) => setTimeout(r, 500));
     try {
-      const groups = await trpc.group.findMany.query();
+      const groups = await trpc.group.findMany.query({ orderBy, search });
       setFetchingState("idle");
       setRows(groups);
     } catch (error) {
+      console.error(error);
       setFetchingState("error");
     }
-  }, [trpc]);
+  }, [trpc, orderBy, search]);
 
+  // TODO: add debounce
   useEffect(() => {
     getGroups();
-  }, []);
+  }, [getGroups]);
 
   const columns: Column<Group>[] = useMemo(
     () =>
       [
         {
-          header: "id",
-          field: "id",
-        },
-        {
-          header: "type",
+          header: (
+            <Button
+              variant="text"
+              onClick={() => {
+                setOrderBy((prev) => ({
+                  field: "name",
+                  direction: prev?.direction === "asc" ? "desc" : "asc",
+                }));
+              }}
+              className="flex gap-1 items-center text-inherit text-md w-full"
+            >
+              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
+                <ChevronUpIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "name" && orderBy?.direction === "asc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+                <ChevronDownIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "name" && orderBy?.direction === "desc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+              </span>
+              <span>type</span>
+            </Button>
+          ),
           field: "type",
         },
         {
-          header: "name",
+          header: (
+            <Button
+              variant="text"
+              onClick={() => {
+                setOrderBy((prev) => ({
+                  field: "name",
+                  direction: prev?.direction === "asc" ? "desc" : "asc",
+                }));
+              }}
+              className="flex gap-1 items-center text-inherit text-md w-full"
+            >
+              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
+                <ChevronUpIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "name" && orderBy?.direction === "asc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+                <ChevronDownIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "name" && orderBy?.direction === "desc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+              </span>
+              <span>name</span>
+            </Button>
+          ),
           field: "name",
         },
         {
-          header: "createdAt",
-          field: "createdAt",
-        },
-        {
-          header: "updatedAt",
-          field: "createdAt",
+          header: (
+            <Button
+              variant="text"
+              onClick={() => {
+                setOrderBy((prev) => ({
+                  field: "createdAt",
+                  direction: prev?.direction === "asc" ? "desc" : "asc",
+                }));
+              }}
+              className="flex gap-1 items-center text-inherit text-md w-full"
+            >
+              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
+                <ChevronUpIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "createdAt" &&
+                    orderBy?.direction === "asc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+                <ChevronDownIcon
+                  className={`h-3 font-bold ${
+                    orderBy?.field === "createdAt" &&
+                    orderBy?.direction === "desc"
+                      ? "text-blue-700"
+                      : ""
+                  }`}
+                />
+              </span>
+              <span>creation date</span>
+            </Button>
+          ),
+          valueGetter: (row) =>
+            format(new Date(row.createdAt!), "yyyy-MM-dd HH:mm"),
         },
         {
           header: "actions",
@@ -113,7 +210,7 @@ export function GroupsPage() {
           ),
         },
       ] as Column<Group>[],
-    []
+    [orderBy]
   );
 
   return (
@@ -131,7 +228,11 @@ export function GroupsPage() {
             Groups management
           </Typography>
           <div className="ml-auto">
-            <Input label="Search"></Input>
+            <Input
+              label="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            ></Input>
           </div>
           <Button
             className="flex justify-center items-center gap-3 "
@@ -142,21 +243,22 @@ export function GroupsPage() {
         </div>
         <Card className="flex flex-col flex-1">
           <DataGrid
-            className="text-left table-fixed w-full "
-            headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
+            className="text-left table-fixed w-full capitalize"
+            headerClassName="capitalize [&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
-            rows={rows}
+            rows={rows.slice(
+              (pagination.page - 1) * pagination.perPage,
+              pagination.page * pagination.perPage
+            )}
             columns={columns}
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}
           ></DataGrid>
           <Pagination
             className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
-            value={{
-              page: 1,
-              perPage: 5,
-            }}
-            total={500}
+            value={pagination}
+            onChange={setPagination}
+            total={rows.length}
           />
         </Card>
         <AddEdit />

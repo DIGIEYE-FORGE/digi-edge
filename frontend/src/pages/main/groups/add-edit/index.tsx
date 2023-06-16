@@ -65,7 +65,7 @@ function AddEditGroup() {
       <div className="flex-1 flex flex-col gap-4 p-4 border-b">
         <div>
           <Input
-            label="Name"
+            label="Name *"
             value={group?.name || ""}
             onChange={(e) => {
               setGroup({
@@ -77,7 +77,7 @@ function AddEditGroup() {
         </div>
         <div>
           <Input
-            label="Type"
+            label="Type *"
             value={group?.type || ""}
             onChange={(e) => {
               setGroup({
@@ -92,7 +92,12 @@ function AddEditGroup() {
         <Button variant="text" color="red" onClick={() => setGroup(null)}>
           cancel
         </Button>
-        <Button variant="filled" color="green" onClick={handleSave}>
+        <Button
+          disabled={!group?.id && (!group?.name || !group?.type)}
+          variant="filled"
+          color="green"
+          onClick={handleSave}
+        >
           save
         </Button>
       </div>

@@ -13,11 +13,29 @@ export const createSchema = z.object({
 
 export const updateSchema = createSchema.partial();
 
+export const orderBySchema = z.object({
+	field: z.enum(['name', 'type', 'createdAt']),
+	direction: z.enum(['asc', 'desc']),
+});
+
 const groupRouter = router({
 
 	findMany: procedure
-		.query(async () => {
-			return await prisma.group.findMany();
+		.input(z.object({
+			search: z.string().optional(),
+			orderBy: orderBySchema.optional(),
+		}).optional())
+		.query(async (opts) => {
+			const { search, orderBy } = opts.input || {};
+			return await prisma.group.findMany({
+				orderBy: orderBy && { [orderBy.field]: orderBy.direction },
+				where: search ? {
+					OR: [
+						{ name: { contains: search, mode: 'insensitive' } },
+						{ type: { contains: search, mode: 'insensitive' } },
+					]
+				} : undefined,
+			});
 		}),
 
 	getNames: procedure
