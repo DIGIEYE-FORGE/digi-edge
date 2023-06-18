@@ -88,3 +88,12 @@ export type Device = {
 	updatedAt?: string;
 	attributes: Attribute[];
 }
+
+export type User = {
+	id?: number;
+	firstName: string;
+	lastName: string;
+	email: string;
+	role: "ADMIN" | "USER";
+	[key: string]: any;
+}

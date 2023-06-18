@@ -16,14 +16,6 @@ function CustomSelect({
   onChange?: (newVal: string) => void;
   options: OptionType[] | string[];
 }) {
-  if (options.length === 0)
-    return (
-      <select className="peer bg-transparent w-full border-none outline-none  peer ">
-        <option value="" disabled>
-          No options
-        </option>
-      </select>
-    );
   return (
     <div className={`relative  min-w-[8rem] p-2 ${className}`}>
       <select
@@ -38,16 +30,22 @@ function CustomSelect({
         <option value="" disabled>
           Select
         </option>
-        {options.map((option) =>
-          typeof option === "string" ? (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ) : (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
+        {options?.length > 0 ? (
+          options.map((option) =>
+            typeof option === "string" ? (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ) : (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            )
           )
+        ) : (
+          <option value="" disabled>
+            No options
+          </option>
         )}
       </select>
       <div

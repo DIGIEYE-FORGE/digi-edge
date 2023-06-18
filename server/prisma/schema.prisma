@@ -147,7 +147,7 @@ model Device {
   name        String
   serial      String  @unique
   isPassive   Boolean @default(false) @map("is_passive")
-  isDecode    Boolean @default(false) @map("is_decoder")
+  isDecoded   Boolean @default(false) @map("is_decoder")
   blacklisted Boolean @default(false)
 
   attributes      Attribute[]

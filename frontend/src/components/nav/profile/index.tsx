@@ -21,7 +21,7 @@ import { AppContext } from "../../../App";
 
 function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const { user, setAccessToken, setRefreshToken } = useProvider<AppContext>();
+  const { user, setAccessToken } = useProvider<AppContext>();
 
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -98,7 +98,6 @@ function ProfileMenu() {
         <MenuItem
           onClick={() => {
             setAccessToken("");
-            setRefreshToken("");
           }}
           className="flex items-center gap-2 rounded hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
         >

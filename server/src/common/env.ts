@@ -6,7 +6,7 @@ const envShcema = {
 	NODE_ENV: z.string().default('development'),
 	PORT: z.string().default('3000'),
 	JWT_SECRET: z.string().default('secret'),
-	ACCESS_TOKEN_EXPIRES_IN: z.string().default('15m'),
+	ACCESS_TOKEN_EXPIRES_IN: z.string().default('1d'),
 	REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
 };
 

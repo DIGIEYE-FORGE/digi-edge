@@ -16,6 +16,8 @@ import useLocalStorage from "./hooks/use-local-storage";
 import Loader from "./components/loader";
 import LoginPage from "./pages/login";
 import { State } from "./utils/types";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export type AppContext = {
   secondaryMenu: boolean;
@@ -191,6 +193,7 @@ function App() {
               </Button>
             </DialogFooter>
           </Dialog>
+          <ToastContainer />
         </>
       )}
     </Provider>

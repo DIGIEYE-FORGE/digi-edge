@@ -13,6 +13,7 @@ async function initUser() {
 			firstName: "Isel",
 			lastName: "Jao",
 			email: "iseljao@gmail.com",
+			role: "ADMIN",
 			password,
 		}
 	});

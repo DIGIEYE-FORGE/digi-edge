@@ -2,6 +2,7 @@ import { authProcedure as procedure, router } from '../trpc';
 import prisma from '../common/prisma';
 import { z } from 'zod';
 import { isBetween } from '../utils';
+import { TRPCError } from '@trpc/server';
 
 
 
@@ -53,7 +54,8 @@ const groupRouter = router({
 	create: procedure
 		.input(createSchema)
 		.mutation(async (opts) => {
-			const { input } = opts;
+			const { input, ctx } = opts;
+			if (ctx.user.role !== "ADMIN") throw new TRPCError({ code: "UNAUTHORIZED", message: "You are not authorized to perform this action." });
 			const group = await prisma.group.create({ data: input });
 			return group;
 
@@ -65,7 +67,8 @@ const groupRouter = router({
 			data: updateSchema,
 		}))
 		.mutation(async (opts) => {
-			const { input } = opts;
+			const { input, ctx } = opts;
+			if (ctx.user.role !== "ADMIN") throw new TRPCError({ code: "UNAUTHORIZED", message: "You are not authorized to perform this action." });
 			const { id, data } = input;
 			return await prisma.group.update({ where: { id }, data });
 		}),
@@ -73,7 +76,8 @@ const groupRouter = router({
 	delete: procedure
 		.input(z.number())
 		.mutation(async (opts) => {
-			const { input } = opts;
+			const { input, ctx } = opts;
+			if (ctx.user.role !== "ADMIN") throw new TRPCError({ code: "UNAUTHORIZED", message: "You are not authorized to perform this action." });
 			return await prisma.group.delete({ where: { id: input } });
 		}),
 
