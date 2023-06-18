@@ -9,6 +9,8 @@ import { useProvider } from "../../../../components/provider";
 import { GroupsPageContext } from "..";
 import Drawer from "../../../../components/drawer";
 import CustomSelect from "../../../../components/custom-select";
+import { TRPCClientError } from "@trpc/client";
+import { toast } from "react-toastify";
 
 function AddEditGroup() {
   const { group, setGroup, trpc, getGroups } = useProvider<GroupsPageContext>();
@@ -40,6 +42,10 @@ function AddEditGroup() {
       setGroup(null);
       getGroups();
     } catch (e) {
+      if (e instanceof TRPCClientError) {
+        toast.error(e.message);
+      }
+      toast.error("Something went wrong");
       console.error(e);
     }
   }

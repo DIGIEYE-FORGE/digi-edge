@@ -20,6 +20,8 @@ import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
 import { Group, State } from "../../../utils/types.ts";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
+import { TRPCClientError } from "@trpc/client";
 
 const defaultGroup: Group = {
   name: "",
@@ -198,6 +200,11 @@ export function GroupsPage() {
                         await trpc.group.delete.mutate(row.id);
                         getGroups();
                       } catch (error) {
+                        if (error instanceof TRPCClientError) {
+                          toast.error(error.message);
+                          return;
+                        }
+                        toast.error("Something went wrong");
                         console.error(error);
                       }
                     },

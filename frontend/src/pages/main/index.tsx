@@ -52,8 +52,7 @@ function ListItemLink({
 }
 
 function SideBar() {
-  const { secondaryMenu, setAccessToken, setRefreshToken } =
-    useProvider<AppContext>();
+  const { secondaryMenu, setAccessToken, user } = useProvider<AppContext>();
   const [open, setOpen] = React.useState(0);
 
   const handleOpen = (value: number) => {
@@ -61,7 +60,6 @@ function SideBar() {
   };
   const handleLogout = () => {
     setAccessToken("");
-    setRefreshToken("");
   };
 
   return (
@@ -143,47 +141,14 @@ function SideBar() {
               </List>
             </AccordionBody>
           </Accordion>
-          <Accordion
-            open={open === 2}
-            icon={
-              <ChevronDownIcon
-                strokeWidth={2.5}
-                className={`mx-auto h-4 w-4 transition-transform ${
-                  open === 2 ? "rotate-180" : ""
-                }`}
-              />
-            }
-          >
-            <ListItem className="p-0" selected={open === 2}>
-              <AccordionHeader
-                onClick={() => handleOpen(2)}
-                className="border-b-0 p-3"
-              >
-                <ListItemPrefix>
-                  <UserGroupIcon className="h-5 w-5" />
-                </ListItemPrefix>
-                <Typography color="blue-gray" className="mr-auto font-normal">
-                  Users and tenants
-                </Typography>
-              </AccordionHeader>
-            </ListItem>
-            <AccordionBody className="py-1">
-              <List className="p-0">
-                <ListItemLink path="/tenants">
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  Tenants
-                </ListItemLink>
-                <ListItemLink path="/users">
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  Users
-                </ListItemLink>
-              </List>
-            </AccordionBody>
-          </Accordion>
+          {user && user.role === "ADMIN" && (
+            <ListItemLink path="/users">
+              <ListItemPrefix>
+                <UserGroupIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Users
+            </ListItemLink>
+          )}
           <ListItem>
             <ListItemPrefix>
               <InboxIcon className="h-5 w-5" />
