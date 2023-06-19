@@ -72,6 +72,7 @@ export function GroupsPage() {
 
   const filterRows = useMemo(() => {
     if (!search) return rows;
+    setPagination((prev) => ({ ...prev, page: 1 }));
     return rows.filter(
       (row) =>
         row.name.toLowerCase().includes(search.toLowerCase()) ||
