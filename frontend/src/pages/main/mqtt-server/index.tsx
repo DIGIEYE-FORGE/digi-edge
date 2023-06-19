@@ -37,6 +37,11 @@ export function MqttServersPage() {
   const { trpc, handleConfirm } = context;
   const [data, setData] = React.useState<Data | null>(null);
   const [rows, setRows] = React.useState<Data[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 5,
+  });
   const [fetchingState, setFetchingState] = useState<State>("idle");
 
   const fetchRows = useCallback(async () => {
@@ -51,6 +56,19 @@ export function MqttServersPage() {
     }
   }, [trpc]);
 
+  const filteredRows = useMemo(() => {
+    if (!search) return rows;
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    return rows.filter((row) => {
+      return (
+        row.username.toLowerCase().includes(search.toLowerCase()) ||
+        row.host.toLowerCase().includes(search.toLowerCase()) ||
+        row.topic.toLowerCase().includes(search.toLowerCase()) ||
+        row.clientId.toString().toLowerCase().includes(search.toLowerCase())
+      );
+    });
+  }, [rows, search]);
+
   useEffect(() => {
     fetchRows();
   }, [fetchRows]);
@@ -59,27 +77,23 @@ export function MqttServersPage() {
     () =>
       [
         {
-          header: "id",
-          field: "id",
-        },
-        {
-          header: "clientId",
+          header: "Client Id",
           field: "clientId",
         },
         {
-          header: "username",
+          header: "Username",
           field: "username",
         },
         {
-          header: "host",
+          header: "Host",
           field: "host",
         },
         {
-          header: "topic",
+          header: "Topic",
           field: "topic",
         },
         {
-          header: "actions",
+          header: "Actions",
           width: "120px",
           valueGetter: (row) => (
             <div className="flex items-center gap-2">
@@ -131,10 +145,14 @@ export function MqttServersPage() {
       <div className="h-full flex flex-col gap-4">
         <div className="flex flex-wrap gap-4">
           <Typography variant="h5" color="blue">
-            MqttServers management
+            MQTT Servers management
           </Typography>
           <div className="ml-auto">
-            <Input label="Search"></Input>
+            <Input
+              label="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            ></Input>
           </div>
         </div>
         <Card className="flex flex-col flex-1">
@@ -142,7 +160,12 @@ export function MqttServersPage() {
             className="text-left table-fixed w-full "
             headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
-            rows={rows}
+            rows={
+              filteredRows.slice(
+                (pagination.page - 1) * pagination.perPage,
+                pagination.page * pagination.perPage
+              ) || []
+            }
             columns={columns}
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}
@@ -156,11 +179,9 @@ export function MqttServersPage() {
             </Button>
             <Pagination
               className="mt-auto md:p-3 lg:p-4 ml-auto"
-              value={{
-                page: 1,
-                perPage: 5,
-              }}
-              total={500}
+              value={pagination}
+              onChange={setPagination}
+              total={filteredRows.length}
             />
           </div>
         </Card>

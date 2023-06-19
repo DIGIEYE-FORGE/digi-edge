@@ -7,8 +7,6 @@ import {
   Input,
 } from "@material-tailwind/react";
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
   PencilIcon,
   PlusCircleIcon,
   TrashIcon,
@@ -19,7 +17,6 @@ import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
 import { Group, MqttServer, State } from "../../../utils/types.ts";
-import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { TRPCClientError } from "@trpc/client";
 
@@ -36,17 +33,12 @@ export type GroupsPageContext = AppContext & {
   mqttServers: MqttServer[];
 };
 
-type OrderBy = {
-  field: "name" | "type" | "createdAt";
-  direction: "asc" | "desc";
-};
 export function GroupsPage() {
   const context = useProvider<AppContext>();
   const { trpc, handleConfirm } = context;
   const [group, setGroup] = React.useState<Group | null>(null);
   const [rows, setRows] = React.useState<Group[]>([]);
   const [fetchingState, setFetchingState] = useState<State>("idle");
-  const [orderBy, setOrderBy] = useState<OrderBy | undefined>();
   const [search, setSearch] = useState<string>("");
   const [mqttServers, setMqttServers] = useState<MqttServer[]>([]);
 
@@ -78,7 +70,16 @@ export function GroupsPage() {
     }
   }, [trpc]);
 
-  // TODO: add debounce
+  const filterRows = useMemo(() => {
+    if (!search) return rows;
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    return rows.filter(
+      (row) =>
+        row.name.toLowerCase().includes(search.toLowerCase()) ||
+        row.type.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [rows, search]);
+
   useEffect(() => {
     getGroups();
     fetchStatic();
@@ -88,110 +89,16 @@ export function GroupsPage() {
     () =>
       [
         {
-          header: (
-            <Button
-              variant="text"
-              onClick={() => {
-                setOrderBy((prev) => ({
-                  field: "name",
-                  direction: prev?.direction === "asc" ? "desc" : "asc",
-                }));
-              }}
-              className="flex px-2 gap-2 items-center text-inherit text-md w-full h-full rounded-none"
-            >
-              <span className="flex flex-col justify-center text-blue-gray-100 ">
-                <ChevronUpIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "name" && orderBy?.direction === "asc"
-                      ? "text-blue-500"
-                      : ""
-                  }`}
-                />
-                <ChevronDownIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "name" && orderBy?.direction === "desc"
-                      ? "text-blue-500"
-                      : ""
-                  }`}
-                />
-              </span>
-              <span>type</span>
-            </Button>
-          ),
+          header: "Name",
+          field: "name",
+        },
+        {
+          header: "Type",
           field: "type",
         },
         {
           header: "MQTT Server",
           valueGetter: (row) => row.mqttServer?.host || "N/A",
-        },
-        {
-          header: (
-            <Button
-              variant="text"
-              onClick={() => {
-                setOrderBy((prev) => ({
-                  field: "type",
-                  direction: prev?.direction === "asc" ? "desc" : "asc",
-                }));
-              }}
-              className="flex px-2 gap-2 items-center text-inherit text-md w-full h-full rounded-none"
-            >
-              <span className="flex flex-col justify-center text-blue-gray-100">
-                <ChevronUpIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "type" && orderBy?.direction === "asc"
-                      ? "text-blue-700"
-                      : ""
-                  }`}
-                />
-                <ChevronDownIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "type" && orderBy?.direction === "desc"
-                      ? "text-blue-700"
-                      : ""
-                  }`}
-                />
-              </span>
-              <span>name</span>
-            </Button>
-          ),
-          field: "name",
-        },
-        {
-          header: (
-            <Button
-              variant="text"
-              onClick={() => {
-                setOrderBy((prev) => ({
-                  field: "createdAt",
-                  direction: prev?.direction === "asc" ? "desc" : "asc",
-                }));
-              }}
-              className="flex px-2 gap-1 items-center text-inherit text-md w-full h-full rounded-none"
-            >
-              <span className="!px-3 flex flex-col justify-center text-blue-gray-100">
-                <ChevronUpIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "createdAt" &&
-                    orderBy?.direction === "asc"
-                      ? "text-blue-700"
-                      : ""
-                  }`}
-                />
-                <ChevronDownIcon
-                  className={`h-3 font-bold ${
-                    orderBy?.field === "createdAt" &&
-                    orderBy?.direction === "desc"
-                      ? "text-blue-500"
-                      : ""
-                  }`}
-                />
-              </span>
-              <span>creation date</span>
-            </Button>
-          ),
-          valueGetter: (row) =>
-            format(new Date(row.createdAt!), "yyyy-MM-dd HH:mm"),
         },
         {
           header: <span className="px-2">Actions</span>,
@@ -236,7 +143,7 @@ export function GroupsPage() {
           ),
         },
       ] as Column<Group>[],
-    [orderBy]
+    []
   );
 
   return (
@@ -268,9 +175,9 @@ export function GroupsPage() {
         <Card className="flex flex-col flex-1 ">
           <DataGrid
             className="text-left table-fixed w-full capitalize"
-            headerClassName="capitalize [&>*]:h-16 border-b border-blue-gray-100 text-gray-900"
+            headerClassName="capitalize [&>*]:h-16 border-b border-blue-gray-100 text-gray-900 [&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
-            rows={rows.slice(
+            rows={filterRows.slice(
               (pagination.page - 1) * pagination.perPage,
               pagination.page * pagination.perPage
             )}
@@ -289,7 +196,7 @@ export function GroupsPage() {
               className="mt-auto md:p-3 lg:p-4 ml-auto"
               value={pagination}
               onChange={setPagination}
-              total={500}
+              total={filterRows.length}
             />
           </div>
         </Card>
