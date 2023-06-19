@@ -190,8 +190,9 @@ function App() {
           </div>
           <Dialog
             open={!!confirmDialogData}
+            size="xs"
             handler={handleClose}
-            className="!w-11/12 !max-w-[30rem] "
+            className="!w-11/12 !max-w-[20rem] "
           >
             <DialogHeader>{confirmDialogData?.title || ""}</DialogHeader>
             <DialogBody divider>{confirmDialogData?.body || ""}</DialogBody>
