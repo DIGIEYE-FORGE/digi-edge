@@ -48,7 +48,7 @@ export default function Notifications() {
           <div className="flex flex-col gap-1">
             <Typography variant="small" color="gray" className="font-normal">
               <span className="font-medium text-blue-gray-900">Natali</span>{" "}
-              reply to your email
+              reply to your username
             </Typography>
             <Typography
               variant="small"
