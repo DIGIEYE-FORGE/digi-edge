@@ -4,7 +4,7 @@ import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItemSuffix, Typography, ListItem, Accordion, AccordionBody } from "@material-tailwind/react";
 import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, updateEdge, BackgroundVariant, Node, Edge } from 'reactflow';
 import 'reactflow/dist/style.css';
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, RefObject, useCallback, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ChevronRightIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, Cog6ToothIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon, PowerIcon, PresentationChartBarIcon, RectangleGroupIcon, UserCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import {MdOutlineAlarmAdd} from "react-icons/md"
@@ -36,6 +36,7 @@ const defaultEdgeOptions = {
     type: MarkerType.ArrowClosed,
   },
 };
+
 function FlowPage() {
   const { secondaryMenu } = useProvider<AppContext>();
   const [widgets,setWidgets] = React.useState<
@@ -115,7 +116,6 @@ function FlowPage() {
                 }
             ]
         },
-       
     },
     {
         elements:{
@@ -364,7 +364,7 @@ function FlowPage() {
   const [initialNodes,setInitialNodes ]= React.useState<Node[]>([]);
   const [initialEdges,setInitialEdges]  = React.useState<Edge[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = React.useState(null);
-  const reactFlowWrapper = React.useRef(null);
+ const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
   const onNodesChange = useCallback(
     (changes:any) =>
      setInitialNodes((nds) =>applyNodeChanges(changes, nds)),
@@ -377,28 +377,66 @@ function FlowPage() {
       const onConnect = useCallback((params:any) => setInitialEdges((eds:any) => addEdge({...params, type: 'floating'
       }, eds)), []);
     
-  
-      // const onDrop = (event) => {
-      //   event.preventDefault();
 
-      //   const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
-      //   const type = event.dataTransfer.getData("application/reactflow");
-      //   const position = reactFlowInstance.project({
-      //     x: event.clientX - reactFlowBounds.left,
-      //     y: event.clientY - reactFlowBounds.top
-      //   });
-      //   const newNode = {
-      //     id: getId(),
-      //     type,
-      //     position,
-      //     sourcePosition: "right",
-      //     targetPosition: "left",
-      //     data: { label: `${type} node` }
-      //   };
+      const [dropData,setDropData] = React.useState<{
+        color:string,
+        label:string,
+        icon:ReactNode
+      } | null>(null);
+
+      const onDragOver = (event:any) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      };
+      const onLoad = (_reactFlowInstance:any) => {
+        setReactFlowInstance(_reactFlowInstance);
+        // Set Nodes
+      };
     
-        
-      // };
 
+      const onDrop = (event: React.DragEvent) => {
+        event.preventDefault();
+        const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
+        setInitialNodes((prevNodes) => [
+          ...prevNodes,
+          {
+            id: getId(),
+            type: 'selectorNode',
+            style: {
+              background: dropData?.color || '#d20d0d',
+              color: '#4E5064',
+              border: '1px solid #4E5064',
+              width: 170,
+              height: 30,
+              display: 'flex',
+              borderRadius: 5,
+              cursor: 'pointer',
+            },
+            position: {
+              x: (event.clientX - reactFlowBounds?.left) - 85,
+              y: (event.clientY - reactFlowBounds?.top) - 15,
+            },
+            data: {
+              label: (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    height: '100%',
+                    transform: 'translate(-4px,0px)',
+                  }}
+                >
+                  <span className="icons-flow">{dropData?.icon}</span>
+                  <span className="text-flow">{dropData?.label}</span>
+                </div>
+              ),
+            },
+          },
+        ]);
+      };
+     
     
   return (
     <ReactFlowProvider>
@@ -468,8 +506,7 @@ function FlowPage() {
                           backgroundColor:dt.color
                         }}
                         onDragStart={(e)=>{
-                          console.log(dt);
-                          console.log("test",e);
+                          setDropData(dt);
                         }}
                         onClick={()=>{
                           setInitialNodes([...initialNodes,{
@@ -527,6 +564,9 @@ function FlowPage() {
           connectionLineStyle={connectionLineStyle}
           defaultEdgeOptions={defaultEdgeOptions}
           onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onLoad={onLoad}
          >
             <Background color="#ccc" variant={BackgroundVariant.Lines} gap={12} />
             <Controls />
