@@ -69,14 +69,14 @@ export function GroupsPage() {
     setFetchingState("loading");
     await new Promise((r) => setTimeout(r, 500));
     try {
-      const groups = await trpc.group.findMany.query({ orderBy, search });
+      const groups = await trpc.group.findMany.query();
       setFetchingState("idle");
       setRows(groups);
     } catch (error) {
       console.error(error);
       setFetchingState("error");
     }
-  }, [trpc, orderBy, search]);
+  }, [trpc]);
 
   // TODO: add debounce
   useEffect(() => {
@@ -252,7 +252,7 @@ export function GroupsPage() {
       <div className="h-full flex flex-col gap-4">
         <div className="flex flex-wrap gap-4">
           <Typography variant="h5" color="blue">
-            Groups management
+            Applications management
           </Typography>
           <div className="ml-auto">
             <Input

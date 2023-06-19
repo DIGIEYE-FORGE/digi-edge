@@ -33,7 +33,7 @@ const router = createBrowserRouter([
             element: <DevicesPage />,
           },
           {
-            path: "groups",
+            path: "applications",
             element: <GroupsPage />,
           },
           {
