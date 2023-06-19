@@ -5,6 +5,7 @@ import {
   IconButton,
   Card,
   Input,
+  Tooltip,
 } from "@material-tailwind/react";
 import {
   PencilIcon,
@@ -57,6 +58,19 @@ export function DeviceProfilePage() {
   const [deviceTypes, setDeviceTypes] = React.useState<DeviceType[]>([]);
   const [protocols, setProtocols] = React.useState<Protocol[]>([]);
   const [decoders, setDecoders] = React.useState<Decoder[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 5,
+  });
+
+  const filteredRows = useMemo(() => {
+    if (!search) return rows;
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    return rows.filter((row) =>
+      row.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [rows, search]);
 
   const fetchDeviceTypes = useCallback(async () => {
     await new Promise((r) => setTimeout(r, 500));
@@ -110,31 +124,51 @@ export function DeviceProfilePage() {
     () =>
       [
         {
-          header: "id",
-          field: "id",
-        },
-        {
-          header: "name",
+          header: "Name",
           field: "name",
         },
         {
-          header: "deviceType",
+          header: "Device Type",
           valueGetter: (row) => row.deviceType?.name,
         },
         {
-          header: "protocol",
+          header: "Protocol",
           valueGetter: (row) => row.protocol?.name,
         },
         {
-          header: "description",
-          field: "description",
+          header: "Description",
+          valueGetter: (row) =>
+            row.description ? (
+              <Tooltip
+                content={
+                  <div className="max-w-[30rem]">
+                    <Typography color="white" className="font-medium">
+                      Material Tailwind
+                    </Typography>
+                    <Typography
+                      variant="small"
+                      color="white"
+                      className="font-normal opacity-80"
+                    >
+                      {row.description}
+                    </Typography>
+                  </div>
+                }
+              >
+                {row.description?.length > 20
+                  ? row.description?.slice(0, 20) + "..."
+                  : row.description}
+              </Tooltip>
+            ) : (
+              "No description"
+            ),
         },
         {
-          header: "decoder",
+          header: "Decoder",
           valueGetter: (row) => row.decoder?.name,
         },
         {
-          header: "credentialsType",
+          header: "Credentials Type",
           valueGetter: (row) => row.credentialsType,
         },
 
@@ -156,7 +190,7 @@ export function DeviceProfilePage() {
                 color="red"
                 onClick={() => {
                   handleConfirm({
-                    title: "Delete MqttServer!",
+                    title: "Delete Device Profile!",
                     body: "Are you Sure do you want to precede. this action is irriversible",
                     onConfirm: async () => {
                       if (!row.id) return;
@@ -200,7 +234,11 @@ export function DeviceProfilePage() {
             DeviceProfile management
           </Typography>
           <div className="ml-auto">
-            <Input label="Search"></Input>
+            <Input
+              label="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            ></Input>
           </div>
         </div>
         <Card className="flex flex-col flex-1">
@@ -209,7 +247,10 @@ export function DeviceProfilePage() {
             className="text-left table-auto w-full "
             headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100 text-gray-900"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-100  hover:bg-blue-50/50 transition-colors"
-            rows={rows}
+            rows={filteredRows.slice(
+              (pagination.page - 1) * pagination.perPage,
+              pagination.page * pagination.perPage
+            )}
             columns={columns}
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}
@@ -223,11 +264,9 @@ export function DeviceProfilePage() {
             </Button>
             <Pagination
               className="mt-auto md:p-3 lg:p-4 ml-auto"
-              value={{
-                page: 1,
-                perPage: 5,
-              }}
-              total={500}
+              value={pagination}
+              onChange={setPagination}
+              total={filteredRows.length}
             />
           </div>
         </Card>
