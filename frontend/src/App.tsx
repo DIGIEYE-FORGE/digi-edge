@@ -174,7 +174,7 @@ function App() {
               variant="text"
               className=" flex justify-center items-center hover:bg-blue-500 "
               onClick={() => {
-                if (location.pathname === "/")
+                if (location.pathname !== "/flow")
                   setSecondaryMenu((prev) => !prev);
                 else {
                   setSecondaryMenu(true);
