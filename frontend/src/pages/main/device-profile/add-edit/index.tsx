@@ -261,7 +261,7 @@ function AddEdit() {
     >
       <div className="p-2 md:p-4 flex items-center justify-between border-b">
         <Typography variant="h5" color="blue">
-          {data?.id ? "Edit" : "Add"} MQTT Server
+          {data?.id ? "Edit" : "Add"} Device Profile
         </Typography>
         <IconButton
           variant="text"

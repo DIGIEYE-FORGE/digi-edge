@@ -321,6 +321,7 @@ function AddEdit() {
                         className=" outline-none px-2 w-[6rem] flex-1 border-2 focus:border-blue-500 rounded-e"
                         value={attr.name}
                         id={`name-${index}`}
+                        disabled={["APP_EUI", "DEV_EUI"].includes(attr.name)}
                         onChange={(e) => {
                           const newAttributes = [...attributes];
                           newAttributes[index].name = e.target.value;
@@ -336,6 +337,7 @@ function AddEdit() {
                         value
                       </label>
                       <input
+                        disabled={["APP_EUI", "DEV_EUI"].includes(attr.name)}
                         className="flex-1 outline-none px-2 w-[6rem] border-2 focus:border-blue-500 rounded-e"
                         value={attr.value}
                         id={`value-${index}`}
@@ -346,12 +348,14 @@ function AddEdit() {
                         }}
                       ></input>
                     </div>
-                    <Button
-                      variant="text"
-                      onClick={() => removeAttribute(index)}
-                    >
-                      <TrashIcon className="w-6" />
-                    </Button>
+                    {!["APP_EUI", "DEV_EUI"].includes(attr.name) && (
+                      <Button
+                        variant="text"
+                        onClick={() => removeAttribute(index)}
+                      >
+                        <TrashIcon className="w-6" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

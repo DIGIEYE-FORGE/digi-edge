@@ -32,7 +32,16 @@ const defaultData: Data = {
   isPassive: false,
   isDecoded: false,
   blacklisted: false,
-  attributes: [],
+  attributes: [
+    {
+      name: "APP_EUI",
+      value: "ASDFDASFSDAF",
+    },
+    {
+      name: "DEV_EUI",
+      value: "ASDFDASFSDAF",
+    },
+  ],
 };
 
 export type Context = AppContext & {
@@ -94,39 +103,35 @@ export function DevicePages() {
     () =>
       [
         {
-          header: "id",
-          field: "id",
-        },
-        {
-          header: "name",
+          header: "Name",
           field: "name",
         },
         {
-          header: "serial",
+          header: "Serial",
           field: "serial",
         },
         {
-          header: "deviceProfile",
-          valueGetter: (row) => row?.deviceProfile?.name,
-        },
-        {
-          header: "mqttServerId",
-          valueGetter: (row) => row?.mqttServer?.host,
-        },
-        {
-          header: "group",
-          valueGetter: (row) => row?.group?.name,
-        },
-        {
-          header: "isPassive",
+          header: "Is Passive",
           field: "isPassive",
         },
         {
-          header: "isDecoded",
+          header: "Is Decoded",
           field: "isDecoded",
         },
         {
-          header: "actions",
+          header: "Device Profile",
+          valueGetter: (row) => row?.deviceProfile?.name,
+        },
+        {
+          header: "mqttServer Host",
+          valueGetter: (row) => row?.mqttServer?.host,
+        },
+        {
+          header: "Application",
+          valueGetter: (row) => row?.group?.name,
+        },
+        {
+          header: "Actions",
           width: "120px",
           valueGetter: (row) => (
             <div className="flex items-center gap-2">
