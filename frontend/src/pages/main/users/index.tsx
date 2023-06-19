@@ -29,7 +29,7 @@ import { TRPCClientError } from "@trpc/client";
 const defaultData: Data = {
   firstName: "",
   lastName: "",
-  email: "",
+  username: "",
   password: "",
   role: "USER",
 };
@@ -41,7 +41,7 @@ export type Context = AppContext & {
 };
 
 type OrderBy = {
-  field: "firstName" | "lastName" | "email" | "createdAt";
+  field: "firstName" | "lastName" | "username" | "createdAt";
   direction: "asc" | "desc";
 };
 export function UsersPage() {
@@ -68,7 +68,7 @@ export function UsersPage() {
           (!selectedRole || row.role === selectedRole) &&
           (row.firstName.toLowerCase().includes(search.toLowerCase()) ||
             row.lastName.toLowerCase().includes(search.toLowerCase()) ||
-            row.email.toLowerCase().includes(search.toLowerCase()))
+            row.username.toLowerCase().includes(search.toLowerCase()))
         );
       })
       .sort((a, b) => {
@@ -185,7 +185,7 @@ export function UsersPage() {
               variant="text"
               onClick={() => {
                 setOrderBy((prev) => ({
-                  field: "email",
+                  field: "username",
                   direction: prev?.direction === "asc" ? "desc" : "asc",
                 }));
               }}
@@ -194,23 +194,25 @@ export function UsersPage() {
               <span className="flex flex-col justify-center text-blue-gray-100">
                 <ChevronUpIcon
                   className={`h-3 font-bold ${
-                    orderBy?.field === "email" && orderBy?.direction === "asc"
+                    orderBy?.field === "username" &&
+                    orderBy?.direction === "asc"
                       ? "text-blue-700"
                       : ""
                   }`}
                 />
                 <ChevronDownIcon
                   className={`h-3 font-bold ${
-                    orderBy?.field === "email" && orderBy?.direction === "desc"
+                    orderBy?.field === "username" &&
+                    orderBy?.direction === "desc"
                       ? "text-blue-700"
                       : ""
                   }`}
                 />
               </span>
-              <span>email</span>
+              <span>username</span>
             </Button>
           ),
-          field: "email",
+          field: "username",
         },
         {
           header: "role",

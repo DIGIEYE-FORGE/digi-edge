@@ -18,8 +18,8 @@ import { z } from "zod";
 import { TRPCClientError } from "@trpc/client";
 
 const loginSchema = z.object({
-  email: z.string().email({
-    message: "please enter a valid email address",
+  username: z.string().min(3, {
+    message: "please enter a valid username address",
   }),
   password: z.string().min(8, {
     message: "password must be at least 8 characters long",
@@ -31,7 +31,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -41,7 +41,7 @@ function LoginPage() {
       setIsLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const { accessToken } = await trpc.auth.login.mutate({
-        email: data.email,
+        username: data.username,
         password: data.password,
       });
 
@@ -89,14 +89,14 @@ function LoginPage() {
               size="lg"
               error={!!error && !error.includes("password")}
               onChange={(e) => {
-                setLoginData({ ...loginData, email: e.target.value });
+                setLoginData({ ...loginData, username: e.target.value });
               }}
             />
             <Input
               label="Password"
               type="password"
               size="lg"
-              error={!!error && !error.includes("email")}
+              error={!!error && !error.includes("username")}
               onChange={(e) => {
                 setLoginData({ ...loginData, password: e.target.value });
               }}

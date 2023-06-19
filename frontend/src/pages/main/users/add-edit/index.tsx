@@ -29,7 +29,7 @@ function AddEditGroup() {
           data: {
             firstName: data.firstName,
             lastName: data.lastName,
-            email: data.email,
+            username: data.username,
             password: data.password,
             role: data.role,
           },
@@ -40,7 +40,7 @@ function AddEditGroup() {
         await trpc.user.create.mutate({
           firstName: data.firstName,
           lastName: data.lastName,
-          email: data.email,
+          username: data.username,
           password: data.password,
           role: data.role,
         });
@@ -103,11 +103,11 @@ function AddEditGroup() {
         <div>
           <Input
             label="Email *"
-            value={data?.email || ""}
+            value={data?.username || ""}
             onChange={(e) => {
               setData({
                 ...data!,
-                email: e.target.value,
+                username: e.target.value,
               });
             }}
           />
@@ -148,7 +148,7 @@ function AddEditGroup() {
           disabled={
             !data?.firstName ||
             !data?.lastName ||
-            !data?.email ||
+            !data?.username ||
             (!data?.id && !data?.password)
           }
           variant="filled"
