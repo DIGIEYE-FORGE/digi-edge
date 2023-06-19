@@ -6,6 +6,7 @@ export type Group = {
   type: string;
   createdAt?: string;
   updatedAt?: string;
+  mqttServerId: number | null;
   [key: string]: any;
 };
 

@@ -61,14 +61,13 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen ">
       <div className="flex-1 flex flex-col gap-12 justify-center items-center">
-        <img src="/logo.svg" alt="" className="h-[4rem]" />
         <Card className="w-11/12 max-w-[24rem] bg-blur">
           <CardHeader
-            variant="gradient"
-            color="blue"
-            className="mb-4 grid h-28 place-items-center"
+            // color="blue"
+            className="grid h-28 place-items-center shadow-none"
           >
-            <Typography variant="h3" color="white">
+            <img src="/logo.svg" alt="" className="h-[4rem]" />
+            <Typography variant="h3" color="blue">
               Sign In
             </Typography>
           </CardHeader>
@@ -85,7 +84,7 @@ function LoginPage() {
               </Alert>
             )}
             <Input
-              label="Email"
+              label="UserName"
               size="lg"
               error={!!error && !error.includes("password")}
               onChange={(e) => {

@@ -10,6 +10,7 @@ export const createSchema = z.object({
 	id: z.number().optional(),
 	name: isBetween(2, 50),
 	type: isBetween(2, 50),
+	mqttServerId: z.number().optional(),
 });
 
 export const updateSchema = createSchema.partial();
@@ -29,6 +30,7 @@ const groupRouter = router({
 		.query(async (opts) => {
 			const { search, orderBy } = opts.input || {};
 			return await prisma.group.findMany({
+				include: { mqttServer: true },
 				orderBy: orderBy && { [orderBy.field]: orderBy.direction },
 				where: search ? {
 					OR: [

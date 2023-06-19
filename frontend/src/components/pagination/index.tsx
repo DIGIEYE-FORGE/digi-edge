@@ -70,7 +70,7 @@ function Pagination({
         <div className="flex items-center gap-1">
           <Show when={page > offset + 1}>
             <IconButton
-              className="rounded-full"
+              className="rounded-full hidden sm:inline-block"
               onClick={() => changePage(1)}
               key={page}
               variant="text"
@@ -79,7 +79,7 @@ function Pagination({
             </IconButton>
           </Show>
           <Show when={page > offset + 1}>
-            <span>
+            <span className="hidden sm:inline-block">
               <EllipsisHorizontalIcon className="w-6 text-blue-500" />
             </span>
           </Show>
@@ -102,13 +102,13 @@ function Pagination({
             {page}
           </IconButton>
           <Show when={page < max - offset}>
-            <span>
+            <span className="hidden sm:inline-block">
               <EllipsisHorizontalIcon className="w-6 text-blue-500" />
             </span>
           </Show>
           <Show when={page < max - offset}>
             <IconButton
-              className="rounded-full"
+              className="rounded-full hidden sm:inline-block"
               onClick={() => changePage(max)}
               variant="text"
             >
@@ -128,7 +128,7 @@ function Pagination({
         </Button>
       </div>
       <select
-        className="p-2 rounded bg-transparent hover:ring-blue-200 border-none outline-none ring ring-transparent focus:ring-blue-400"
+        className="p-2 rounded bg-transparent hover:ring-blue-200 border-none outline-none ring ring-transparent focus:ring-blue-400 text-xs sm:text-base"
         onChange={(e) => changePerPage(Number(e.target.value))}
         value={perPage}
       >

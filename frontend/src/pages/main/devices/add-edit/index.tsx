@@ -137,7 +137,7 @@ function AddEdit() {
             >
               <div>
                 <Input
-                  label="name"
+                  label="Name"
                   value={data?.name || ""}
                   onChange={(e) => {
                     setData({
@@ -149,7 +149,7 @@ function AddEdit() {
               </div>
               <div>
                 <Input
-                  label="serial"
+                  label="Serial"
                   value={data?.serial || ""}
                   onChange={(e) => {
                     setData({
@@ -172,7 +172,7 @@ function AddEdit() {
                   label={
                     <div>
                       <Typography color="blue-gray" className="font-medium">
-                        IsPassive
+                        Is Passive
                       </Typography>
                       <Typography
                         variant="small"
@@ -199,7 +199,7 @@ function AddEdit() {
                   label={
                     <div>
                       <Typography color="blue-gray" className="font-medium">
-                        IsDecoded
+                        Is Decoded
                       </Typography>
                       <Typography
                         variant="small"
@@ -315,7 +315,7 @@ function AddEdit() {
                         htmlFor={`name-${index}`}
                         className="px-2 bg-blue-500 text-white rounded-s flex items-center"
                       >
-                        name
+                        Name
                       </label>
                       <input
                         className=" outline-none px-2 w-[6rem] flex-1 border-2 focus:border-blue-500 rounded-e"

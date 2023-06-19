@@ -13,7 +13,8 @@ import { TRPCClientError } from "@trpc/client";
 import { toast } from "react-toastify";
 
 function AddEditGroup() {
-  const { group, setGroup, trpc, getGroups } = useProvider<GroupsPageContext>();
+  const { group, setGroup, trpc, getGroups, mqttServers } =
+    useProvider<GroupsPageContext>();
 
   async function handleSave() {
     if (!group) {
@@ -29,6 +30,7 @@ function AddEditGroup() {
           data: {
             name: group.name,
             type: group.type,
+            mqttServerId: group.mqttServerId || undefined,
           },
         });
       } else {
@@ -37,6 +39,7 @@ function AddEditGroup() {
         await trpc.group?.create?.mutate({
           name: group.name,
           type: group.type,
+          mqttServerId: group.mqttServerId || undefined,
         });
       }
       setGroup(null);
@@ -93,6 +96,24 @@ function AddEditGroup() {
             }}
             options={["type1", "type2", "type3"]}
           />
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <CustomSelect
+              label="MQTT Server"
+              value={group?.mqttServerId?.toString() || ""}
+              options={mqttServers.map((item) => ({
+                label: item.host,
+                value: item.id!.toString(),
+              }))}
+              onChange={(newVal) => {
+                setGroup({
+                  ...group!,
+                  mqttServerId: parseInt(newVal as string),
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
       <div className="flex p-4 justify-between bg-blue-gray-500/10">

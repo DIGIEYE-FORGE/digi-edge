@@ -198,10 +198,10 @@ function MainPage() {
   ``;
   const { secondaryMenu } = useProvider<AppContext>();
   return (
-    <div className="flex">
+    <div className="flex overflow-x-hidden">
       <SideBar />
       <div
-        className={`w-full h-full transition-[padding] [&>*]:p-2 md:[&>*]:p-4 lg:[&>*]:p-6  overflow-x-hidden pl-[4rem]  ${
+        className={`w-full mx-auto max-w-[1920px] h-full transition-[padding] [&>*]:p-2 md:[&>*]:p-4 lg:[&>*]:p-6   pl-[4rem]  ${
           secondaryMenu && " 2xl:pl-[20.5rem]"
         }`}
       >

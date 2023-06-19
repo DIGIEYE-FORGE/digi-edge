@@ -136,12 +136,6 @@ export function MqttServersPage() {
           <div className="ml-auto">
             <Input label="Search"></Input>
           </div>
-          <Button
-            className="flex justify-center items-center "
-            onClick={() => setData(defaultData)}
-          >
-            <PlusCircleIcon strokeWidth={2} className="w-6" />
-          </Button>
         </div>
         <Card className="flex flex-col flex-1">
           <DataGrid
@@ -153,14 +147,22 @@ export function MqttServersPage() {
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}
           ></DataGrid>
-          <Pagination
-            className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
-            value={{
-              page: 1,
-              perPage: 5,
-            }}
-            total={500}
-          />
+          <div className="flex items-center py-2 px-1 sm:px-2 md:px-4 mt-auto flex-wrap ">
+            <Button
+              className="flex justify-center items-center gap-3 rounded-full p-0 h-10  md:h-12 aspect-square "
+              onClick={() => setData(defaultData)}
+            >
+              <PlusCircleIcon strokeWidth={2} className="w-7 md:w-8" />
+            </Button>
+            <Pagination
+              className="mt-auto md:p-3 lg:p-4 ml-auto"
+              value={{
+                page: 1,
+                perPage: 5,
+              }}
+              total={500}
+            />
+          </div>
         </Card>
         <AddEdit />
       </div>

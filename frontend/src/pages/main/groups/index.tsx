@@ -18,7 +18,7 @@ import Provider, { useProvider } from "../../../components/provider";
 import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
-import { Group, State } from "../../../utils/types.ts";
+import { Group, MqttServer, State } from "../../../utils/types.ts";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { TRPCClientError } from "@trpc/client";
@@ -26,12 +26,14 @@ import { TRPCClientError } from "@trpc/client";
 const defaultGroup: Group = {
   name: "",
   type: "",
+  mqttServerId: null,
 };
 
 export type GroupsPageContext = AppContext & {
   group: Group | null;
   setGroup: React.Dispatch<Group | null>;
   getGroups: () => Promise<void>;
+  mqttServers: MqttServer[];
 };
 
 type OrderBy = {
@@ -46,10 +48,22 @@ export function GroupsPage() {
   const [fetchingState, setFetchingState] = useState<State>("idle");
   const [orderBy, setOrderBy] = useState<OrderBy | undefined>();
   const [search, setSearch] = useState<string>("");
+  const [mqttServers, setMqttServers] = useState<MqttServer[]>([]);
+
   const [pagination, setPagination] = useState({
     page: 1,
     perPage: 5,
   });
+
+  const fetchStatic = useCallback(async () => {
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const mqttServers = await trpc.mqttServer.findMany.query();
+      setMqttServers(mqttServers);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [trpc]);
 
   const getGroups = useCallback(async () => {
     setFetchingState("loading");
@@ -67,6 +81,7 @@ export function GroupsPage() {
   // TODO: add debounce
   useEffect(() => {
     getGroups();
+    fetchStatic();
   }, [getGroups]);
 
   const columns: Column<Group>[] = useMemo(
@@ -104,6 +119,10 @@ export function GroupsPage() {
             </Button>
           ),
           field: "type",
+        },
+        {
+          header: "MQTT Server",
+          valueGetter: (row) => row.mqttServer?.host || "N/A",
         },
         {
           header: (
@@ -227,6 +246,7 @@ export function GroupsPage() {
         group,
         setGroup,
         getGroups,
+        mqttServers,
       }}
     >
       <div className="h-full flex flex-col gap-4">
@@ -244,12 +264,6 @@ export function GroupsPage() {
               }}
             ></Input>
           </div>
-          <Button
-            className="flex justify-center items-center gap-3 "
-            onClick={() => setGroup(defaultGroup)}
-          >
-            <PlusCircleIcon strokeWidth={2} className="w-6" />
-          </Button>
         </div>
         <Card className="flex flex-col flex-1 ">
           <DataGrid
@@ -264,12 +278,20 @@ export function GroupsPage() {
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}
           ></DataGrid>
-          <Pagination
-            className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
-            value={pagination}
-            onChange={setPagination}
-            total={rows.length}
-          />
+          <div className="flex items-center py-2 px-1 sm:px-2 md:px-4 mt-auto flex-wrap ">
+            <Button
+              className="flex justify-center items-center gap-3 rounded-full p-0 h-10  md:h-12 aspect-square "
+              onClick={() => setGroup(defaultGroup)}
+            >
+              <PlusCircleIcon strokeWidth={2} className="w-7 md:w-8" />
+            </Button>
+            <Pagination
+              className="mt-auto md:p-3 lg:p-4 ml-auto"
+              value={pagination}
+              onChange={setPagination}
+              total={500}
+            />
+          </div>
         </Card>
         <AddEdit />
       </div>

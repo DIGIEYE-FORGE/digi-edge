@@ -128,7 +128,7 @@ function MemoryUsage() {
 
 function BarChart() {
   return (
-    <Card className="flex flex-col  p-3 row-span-2 text-blue-900 xs:col-span-full 2xl:col-span-4 ">
+    <Card className="flex flex-col  p-3 row-span-2 text-blue-900 col-span-full 2xl:col-span-4 ">
       <div className="title capitalize"> some chart</div>
       <div className="flex-1 w-full ">
         <ReactApexChart
@@ -186,7 +186,7 @@ function BarChart() {
 
 function AreaChart() {
   return (
-    <Card className="flex flex-col  p-3 row-span-2 text-blue-900 xs:col-span-full 2xl:col-span-4 ">
+    <Card className="flex flex-col  p-3 row-span-2 text-blue-900 col-span-full 2xl:col-span-4 ">
       <div className="title capitalize"> onother chart</div>
       <div className="flex-1 w-full ">
         <ReactApexChart
