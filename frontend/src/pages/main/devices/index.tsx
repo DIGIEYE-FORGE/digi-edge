@@ -31,6 +31,7 @@ const defaultData: Data = {
   mqttServerId: null,
   isPassive: false,
   isDecoded: false,
+  blacklisted: false,
   attributes: [],
 };
 
