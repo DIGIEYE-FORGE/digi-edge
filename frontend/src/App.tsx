@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Provider from "./components/provider";
 import {
   Button,
@@ -9,7 +9,11 @@ import {
   DialogHeader,
 } from "@material-tailwind/react";
 import ComplexNavbar from "./components/nav";
-import { BuildingLibraryIcon, HomeIcon } from "@heroicons/react/24/outline";
+import {
+  BuildingLibraryIcon,
+  FireIcon,
+  HomeIcon,
+} from "@heroicons/react/24/outline";
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import type { AppRouter } from "../../server/src/main";
 import useLocalStorage from "./hooks/use-local-storage";
@@ -99,7 +103,8 @@ function App() {
       setLoginState("error");
     }
   }, [accessToken]);
-
+  const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     verifyToken();
   }, [accessToken]);
@@ -154,7 +159,28 @@ function App() {
             <Button
               variant="text"
               className="mt-auto  flex justify-center items-center hover:bg-blue-500 "
-              onClick={() => setSecondaryMenu(!secondaryMenu)}
+              onClick={() => {
+                if (location.pathname === "/flow")
+                  setSecondaryMenu((prev) => !prev);
+                else {
+                  setSecondaryMenu(true);
+                  navigate("/flow");
+                }
+              }}
+            >
+              <FireIcon className="w-8 text-gray-50" />
+            </Button>
+            <Button
+              variant="text"
+              className=" flex justify-center items-center hover:bg-blue-500 "
+              onClick={() => {
+                if (location.pathname === "/")
+                  setSecondaryMenu((prev) => !prev);
+                else {
+                  setSecondaryMenu(true);
+                  navigate("/");
+                }
+              }}
             >
               <HomeIcon className="w-8 text-gray-50" />
             </Button>
