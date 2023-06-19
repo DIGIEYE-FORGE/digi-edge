@@ -1,4 +1,5 @@
 import {
+  InformationCircleIcon,
   PlusCircleIcon,
   TrashIcon,
   XMarkIcon,
@@ -128,7 +129,9 @@ function AddEdit() {
           <TabsHeader>
             <Tab value="General">General</Tab>
             <Tab value="Attributes">Attributes</Tab>
-            <Tab value="Credentials">Credentials</Tab>
+            <Tab value="Credentials" disabled={!data?.deviceProfileId}>
+              Credentials
+            </Tab>
           </TabsHeader>
           <TabsBody>
             <TabPanel
@@ -151,13 +154,23 @@ function AddEdit() {
                 <Input
                   label="Serial"
                   value={data?.serial || ""}
+                  error={!data?.serial.match(/^[A-F0-9]{8}$/g)}
+                  success={data?.serial.match(/^[A-F0-9]{8}$/g) ? true : false}
                   onChange={(e) => {
                     setData({
                       ...data!,
-                      serial: e.target.value,
+                      serial: e.target.value.toUpperCase(),
                     });
                   }}
                 />
+                <Typography
+                  variant="small"
+                  color="gray"
+                  className="flex items-center gap-1 font-normal mt-2"
+                >
+                  <InformationCircleIcon className="w-4 h-4 -mt-px" />
+                  Need To Be 8 Characters Long, Hexadecimal
+                </Typography>
               </div>
               <div className="p-2">
                 <Switch
@@ -170,6 +183,7 @@ function AddEdit() {
                     });
                   }}
                   label={
+                    // "stop the device from sending data to the server"
                     <div>
                       <Typography color="blue-gray" className="font-medium">
                         Is Passive
@@ -197,9 +211,10 @@ function AddEdit() {
                     });
                   }}
                   label={
+                    // "the device won't need to decode the payload"
                     <div>
                       <Typography color="blue-gray" className="font-medium">
-                        Is Decoded
+                        Is Decoder
                       </Typography>
                       <Typography
                         variant="small"
@@ -207,6 +222,33 @@ function AddEdit() {
                         className="font-normal"
                       >
                         If true, the device don't need to decode the payload
+                      </Typography>
+                    </div>
+                  }
+                />
+              </div>
+              <div className="p-2">
+                <Switch
+                  id="blacklisted"
+                  checked={data?.blacklisted}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      blacklisted: e.target.checked,
+                    });
+                  }}
+                  label={
+                    // "blacklist the device and stop all activities"
+                    <div>
+                      <Typography color="blue-gray" className="font-medium">
+                        Blacklist Device
+                      </Typography>
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className="font-normal"
+                      >
+                        stop all the device activities
                       </Typography>
                     </div>
                   }
@@ -229,15 +271,6 @@ function AddEdit() {
                     }}
                   />
                 </div>
-                <Button
-                  variant="text"
-                  className="flex justify-center items-center "
-                  onClick={() => {
-                    navigate("/device-profiles");
-                  }}
-                >
-                  <PlusCircleIcon strokeWidth={2} className="w-6" />
-                </Button>
               </div>
 
               <div className="flex gap-2">
@@ -257,15 +290,6 @@ function AddEdit() {
                     }}
                   />
                 </div>
-                <Button
-                  variant="text"
-                  className="flex justify-center items-center "
-                  onClick={() => {
-                    navigate("/device-profiles");
-                  }}
-                >
-                  <PlusCircleIcon strokeWidth={2} className="w-6" />
-                </Button>
               </div>
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -284,15 +308,6 @@ function AddEdit() {
                     }}
                   />
                 </div>
-                <Button
-                  variant="text"
-                  className="flex justify-center items-center "
-                  onClick={() => {
-                    navigate("/device-profiles");
-                  }}
-                >
-                  <PlusCircleIcon strokeWidth={2} className="w-6" />
-                </Button>
               </div>
             </TabPanel>
             <TabPanel value="Attributes">
@@ -360,7 +375,7 @@ function AddEdit() {
                 ))}
               </div>
             </TabPanel>
-            <TabPanel value="Credentials">Credentials</TabPanel>
+            <TabPanel value="Credentials"></TabPanel>
           </TabsBody>
         </Tabs>
       </div>

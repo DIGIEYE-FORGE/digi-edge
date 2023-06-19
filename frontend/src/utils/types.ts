@@ -4,15 +4,21 @@ export type Device = {
   id?: number;
   name: string;
   serial: string;
-  deviceProfileId: number | null;
-  mqttServerId: number | null;
-  groupId: number | null;
   isPassive: boolean;
   isDecoded: boolean;
   blacklisted: boolean;
   createdAt?: string;
   updatedAt?: string;
   attributes: Attribute[];
+  credential: {
+    username: string;
+    password?: string;
+    isToken: boolean;
+    [key: string]: any;
+  } | null;
+  deviceProfileId: number | null;
+  mqttServerId: number | null;
+  groupId: number | null;
   [key: string]: any;
 };
 

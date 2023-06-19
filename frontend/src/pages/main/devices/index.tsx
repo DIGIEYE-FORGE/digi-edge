@@ -22,6 +22,7 @@ import {
   Name,
   State,
 } from "../../../utils/types.ts";
+import { generateRandomHex } from "../../../utils/functions.ts";
 
 const defaultData: Data = {
   name: "",
@@ -32,14 +33,15 @@ const defaultData: Data = {
   isPassive: false,
   isDecoded: false,
   blacklisted: false,
+  credential: null,
   attributes: [
     {
       name: "APP_EUI",
-      value: "ASDFDASFSDAF",
+      value: generateRandomHex(16),
     },
     {
       name: "DEV_EUI",
-      value: "ASDFDASFSDAF",
+      value: generateRandomHex(16),
     },
   ],
 };
@@ -214,7 +216,7 @@ export function DevicePages() {
               className="mt-auto md:p-3 lg:p-4 ml-auto"
               value={pagination}
               onChange={setPagination}
-              total={500}
+              total={rows.length}
             />
           </div>
         </Card>
