@@ -16,13 +16,6 @@ const TagRouter = router({
 		return await prisma.tag.findMany();
 	}),
 
-	findUnique: procedure
-		.input(z.number())
-		.query(async (opts) => {
-			const { input } = opts;
-			return await prisma.tag.findUnique({ where: { id: input } });
-		}),
-
 	create: procedure
 		.input(createSchema)
 		.mutation(async (opts) => {

@@ -97,3 +97,9 @@ export type User = {
 	role: "ADMIN" | "USER";
 	[key: string]: any;
 }
+
+export type Tag = {
+	id: number;
+	value: string;
+	[key: string]: any;
+}
