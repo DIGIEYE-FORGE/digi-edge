@@ -89,7 +89,7 @@ export function GroupsPage() {
       [
         {
           header: "Name",
-          field: "type",
+          field: "name",
         },
         {
           header: "Type",
