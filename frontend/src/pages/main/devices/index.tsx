@@ -52,6 +52,10 @@ export function DevicePages() {
   const [deviceProfiles, setDeviceProfiles] = useState<Name[]>([]);
   const [groups, setGroups] = useState<Name[]>([]);
   const [mqttServers, setMqttServers] = useState<MqttServer[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: 5,
+  });
 
   const fetchStatic = useCallback(async () => {
     await new Promise((r) => setTimeout(r, 500));
@@ -201,10 +205,8 @@ export function DevicePages() {
           ></DataGrid>
           <Pagination
             className="mt-auto p-2 md:p-3 lg:p-4 ml-auto"
-            value={{
-              page: 1,
-              perPage: 5,
-            }}
+            value={pagination}
+            onChange={setPagination}
             total={500}
           />
         </Card>

@@ -13,6 +13,7 @@ import deviceProfileRouter from './routes/device-profile';
 import protocolRouter from './routes/protocol';
 import decoderRouter from './routes/decoder';
 import deviceRouter from './routes/device';
+import TagRouter from './routes/tags';
 
 const appRouter = router({
 	user: userRouter,
@@ -24,6 +25,7 @@ const appRouter = router({
 	protocol: protocolRouter,
 	decoder: decoderRouter,
 	device: deviceRouter,
+	tag: TagRouter,
 
 });
 
@@ -47,7 +49,6 @@ app.use(async (req, res, next) => {
 	catch (error) {
 
 		if (error instanceof TRPCError) {
-
 			const { code, message, name, cause } = error;
 			const httpCode = getHTTPStatusCodeFromError(error);
 			res.status(httpCode).json({

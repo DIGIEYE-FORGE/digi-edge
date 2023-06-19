@@ -271,7 +271,7 @@ function AddEdit() {
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
       </div>
-      <div className="flex-1 flex flex-col p-2 md:p-4 gap-4  border-b">
+      <div className="flex-1 flex flex-col p-2 md:p-4 gap-4 overflow-x-auto">
         <div>
           <Input
             label="name"
@@ -370,10 +370,7 @@ function AddEdit() {
           <AddDocoder />
         </div>
       </div>
-      <span className="whitespace-break-spaces">
-        {data && Object.entries(data).map(([k, v]) => `${k}: ${v}\n`)}
-      </span>
-      <div className="flex p-4 justify-between">
+      <div className="flex p-2 sm:p-3  md:p-4 justify-between bg-[#F4F5F7]">
         <Button variant="text" color="red" onClick={() => setData(null)}>
           cancel
         </Button>

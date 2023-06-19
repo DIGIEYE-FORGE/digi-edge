@@ -132,8 +132,8 @@ model Tag {
   id    Int    @id @default(autoincrement())
   value String
 
-  device   Device @relation(fields: [deviceId], references: [id])
-  deviceId Int    @map("device_id")
+  device   Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  deviceId Int?    @map("device_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

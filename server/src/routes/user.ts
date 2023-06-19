@@ -20,8 +20,11 @@ export const updateUserSchema = createUserSchema.partial();
 const userRouter = router({
 
 	findMany: procedure
-		.query(async () => {
-			return await prisma.user.findMany();
+		.query(async ({ ctx }) => {
+			const { user } = ctx;
+			return await prisma.user.findMany({
+				where: { id: { not: user.id } }
+			});
 		}),
 
 	findUnique: procedure

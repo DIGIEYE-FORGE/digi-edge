@@ -121,7 +121,7 @@ function Pagination({
           color="blue-gray"
           className="flex items-center gap-2 rounded-full"
           onClick={() => changePage(page + 1)}
-          disabled={page === max}
+          disabled={!total || page === max}
         >
           <span className="hidden lg:inline-block">Next</span>
           <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />

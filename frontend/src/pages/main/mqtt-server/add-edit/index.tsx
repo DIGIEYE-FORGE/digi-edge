@@ -56,7 +56,7 @@ function AddEditGroup() {
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
       </div>
-      <div className="flex-1 flex flex-col gap-4 p-4 border-b">
+      <div className="flex-1 flex flex-col gap-4 p-4 overflow-x-hidden">
         <div>
           <Input
             label="Client Id"
@@ -120,10 +120,7 @@ function AddEditGroup() {
           />
         </div>
       </div>
-      {/* <span className="whitespace-break-spaces">
-        {data && Object.entries(data).map(([k, v]) => `${k}: ${v}\n`)}
-      </span> */}
-      <div className="flex p-4 justify-between">
+      <div className="flex p-4 justify-between bg-[#F4F5F7]">
         <Button variant="text" color="red" onClick={() => setData(null)}>
           cancel
         </Button>

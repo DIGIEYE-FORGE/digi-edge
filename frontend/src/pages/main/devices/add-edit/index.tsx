@@ -107,7 +107,7 @@ function AddEdit() {
   }
   return (
     <Drawer
-      className=" flex flex-col !max-w-[40rem]"
+      className=" flex flex-col !max-w-[40rem] "
       open={!!data}
       onClose={() => setData(null)}
     >
@@ -123,7 +123,7 @@ function AddEdit() {
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 overflow-x-hidden">
         <Tabs value="General">
           <TabsHeader>
             <Tab value="General">General</Tab>
