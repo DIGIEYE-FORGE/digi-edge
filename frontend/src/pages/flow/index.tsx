@@ -363,7 +363,11 @@ function FlowPage() {
 
   const [initialNodes,setInitialNodes ]= React.useState<Node[]>([]);
   const [initialEdges,setInitialEdges]  = React.useState<Edge[]>([]);
-  const [reactFlowInstance, setReactFlowInstance] = React.useState(null);
+  const [reactFlowInstance, setReactFlowInstance] = React.useState<{
+    project: any;
+  }
+  | null
+  >(null);
  const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
   const onNodesChange = useCallback(
     (changes:any) =>
@@ -397,6 +401,13 @@ function FlowPage() {
       const onDrop = (event: React.DragEvent) => {
         event.preventDefault();
         const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
+        if (!reactFlowBounds) {
+          return;
+        }
+        const position = reactFlowInstance?.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
         setInitialNodes((prevNodes) => [
           ...prevNodes,
           {
@@ -413,8 +424,8 @@ function FlowPage() {
               cursor: 'pointer',
             },
             position: {
-              x: (event.clientX - reactFlowBounds?.left) - 85,
-              y: (event.clientY - reactFlowBounds?.top) - 15,
+              x: (event.clientX),
+              y: (event.clientY),
             },
             data: {
               label: (
