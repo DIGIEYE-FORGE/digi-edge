@@ -19,7 +19,11 @@ import {
   RectangleGroupIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/solid";
-import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronRightIcon,
+  ChevronDownIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 
 function ListItemLink({
   children,
@@ -154,14 +158,14 @@ function SideBar() {
                 className="rounded-full"
               />
             </ListItemSuffix>
-          </ListItem>
+          </ListItem> */}
           <ListItemLink path="/profile">
             <ListItemPrefix>
               <UserCircleIcon className="h-5 w-5" />
             </ListItemPrefix>
             Profile
           </ListItemLink>
-          <ListItemLink path="/setting">
+          {/* <ListItemLink path="/setting">
             <ListItemPrefix>
               <Cog6ToothIcon className="h-5 w-5" />
             </ListItemPrefix>

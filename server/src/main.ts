@@ -15,6 +15,16 @@ import decoderRouter from "./routes/decoder";
 import deviceRouter from "./routes/device";
 import TagRouter from "./routes/tags";
 import statsRouter from "./routes/stats";
+import * as multer from "multer";
+
+const storageEngine = multer.diskStorage({
+  destination: "./uploads",
+  filename: (req, file, fn) => {
+    fn(null, `${new Date().getTime()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storageEngine });
 
 const appRouter = router({
   user: userRouter,
@@ -33,6 +43,8 @@ const appRouter = router({
 const app = express();
 
 app.use(cors());
+
+app.use(express.static("uploads"));
 
 app.use(
   "/trpc",
@@ -62,6 +74,14 @@ app.use(async (req, res, next) => {
 
 app.get("/", (_req, res) => {
   res.send("Hello World!");
+});
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (req.file) {
+    res.json({ filename: req.file.filename });
+  } else {
+    res.status(500).json({ message: "File upload failed" });
+  }
 });
 
 app.listen(3000);

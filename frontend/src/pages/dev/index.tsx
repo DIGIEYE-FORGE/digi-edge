@@ -1,8 +1,5 @@
-
 function DevPage() {
-  return (
-  <></>
-  );
+  return <></>;
 }
 
 export default DevPage;
