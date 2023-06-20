@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
-import { AccordionHeader, Card, List, ListItemPrefix, ListItemSuffix, Typography, ListItem, Accordion, AccordionBody } from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, updateEdge, BackgroundVariant, Node, Edge } from 'reactflow';
+import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
+import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, Panel} from 'reactflow';
 import 'reactflow/dist/style.css';
-import React, { ReactNode, RefObject, useCallback, useRef } from "react";
-import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ChevronRightIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, Cog6ToothIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon, PowerIcon, PresentationChartBarIcon, RectangleGroupIcon, UserCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
+import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import {MdOutlineAlarmAdd} from "react-icons/md"
 import {AiOutlineHolder, AiOutlineLogin} from "react-icons/ai"
@@ -21,26 +21,35 @@ const randomNumberBetween = (number1:number, number2:number) => {
   return Math.floor(Math.random() * (number2 - number1 + 1) + number1);
 }
 
-
 let id = 0;
 const getId = () => `dndnode_${id++}`;
-
 const connectionLineStyle = {
   strokeWidth: 0.8,
   stroke: '#000',
 };
 
-const defaultEdgeOptions = {
+let defaultEdgeOptions = {
   style: { strokeWidth: 1, stroke: '#0C5866' },
-  type: 'floating',
   animated: true,
   markerEnd: {
     type: MarkerType.ArrowClosed,
+    color: '#0C5866',
   },
 };
 
 function FlowPage() {
   const { secondaryMenu } = useProvider<AppContext>();
+  const [rfInstance, setRfInstance] = React.useState<any | null>(null);
+  const [flowData, setFlowData] = React.useState(null);
+
+
+  useEffect(() => {
+    if (rfInstance && flowData === null) {
+      const flow = rfInstance.toObject();
+      setFlowData(flow);
+    }
+  }, [rfInstance, flowData]);
+
   const [widgets,setWidgets] = React.useState<
   {
     elements:
@@ -365,11 +374,7 @@ function FlowPage() {
 
   const [initialNodes,setInitialNodes ]= React.useState<Node[]>([]);
   const [initialEdges,setInitialEdges]  = React.useState<Edge[]>([]);
-  const [reactFlowInstance, setReactFlowInstance] = React.useState<{
-    project: any;
-  }
-  | null
-  >(null);
+
  const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
   const onNodesChange = useCallback(
     (changes:any) =>
@@ -380,7 +385,7 @@ function FlowPage() {
       (changes:any) => setInitialEdges((eds) => applyEdgeChanges(changes, eds)),
       []
       );
-      const onConnect = useCallback((params:any) => setInitialEdges((eds:any) => addEdge({...params, type: 'floating'
+      const onConnect = useCallback((params:any) => setInitialEdges((eds:any) => addEdge({...params,
       }, eds)), []);
     
 
@@ -395,7 +400,6 @@ function FlowPage() {
         event.dataTransfer.dropEffect = "move";
       };
       const onLoad = (_reactFlowInstance:any) => {
-        setReactFlowInstance(_reactFlowInstance);
         // Set Nodes
       };
     
@@ -407,20 +411,23 @@ function FlowPage() {
         if (!reactFlowBounds) {
           return;
         }
+        let id = getId();
         setInitialNodes((prevNodes) => [
           ...prevNodes,
           {
-            id: getId(),
-            type: 'selectorNode',
+            id: id,
             style: {
               background: dropData?.color || '#d20d0d',
               color: '#4E5064',
-              border: '1px solid #4E5064',
+              boxShadow: '0.5rem 0.5rem 1rem 0px rgba(0,0,0,0.25)',
+              border: 'none',
               width: 170,
-              height: 30,
+              height: 40,
               display: 'flex',
               borderRadius: 5,
               cursor: 'pointer',
+              padding: 0,
+              margin: 0,
             },
             position: {
               x: event.clientX - 900,
@@ -428,27 +435,67 @@ function FlowPage() {
             },
             data: {
               label: (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    width: '100%',
-                    height: '100%',
-                    whiteSpace: 'nowrap',
-                    transform: 'translate(-4px,0px)',
-                  }}
-                >
-                  <span className="icons-flow whitespace-nowrap">{dropData?.icon}</span>
-                  <span className="text-flow whitespace-nowrap">{dropData?.label}</span>
+                <div className="w-full h-full px-2">
+                  <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 h-6 aspect-square flex justify-center items-center rounded-full" >
+                  <TrashIcon className="h-4 w-4 text-red-500" onClick={()=>{
+                      setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
+                      setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
+                  }} />
+                  </span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      width: '100%',
+                      height: '100%',
+                      whiteSpace: 'nowrap',
+                      transform: 'translate(-4px,0px)',
+                      position: 'relative',
+                    }}
+                  >
+                    <span className="icons-flow whitespace-nowrap">{dropData?.icon}</span>
+                    <span className="text-flow whitespace-nowrap">{dropData?.label}</span>
+                  </div>
                 </div>
               ),
             },
           },
         ]);
       };
-     
-    
+      const edgeUpdateSuccessful = useRef(true);
+      const onEdgeUpdateStart = useCallback(() => {
+        edgeUpdateSuccessful.current = false;
+    }, []);
+
+    const onSave = useCallback(() => {
+      if (flowData) {
+        localStorage.setItem("flow", JSON.stringify(flowData));
+        console.log("flow", flowData);
+      }
+    }, [flowData]);
+    const onEdgeUpdate = useCallback((oldEdge:any, newConnection:any) => {
+        edgeUpdateSuccessful.current = true;
+        setInitialEdges((els:any) => updateEdge(oldEdge, newConnection, els));
+    }, []);
+
+    const onEdgeUpdateEnd = useCallback((_:any, edge: Edge) => {
+      if (!edgeUpdateSuccessful.current) {
+        setInitialEdges((edges) => edges.filter((e) => e.id !== edge.id));
+      }
+      edgeUpdateSuccessful.current = true;
+    }, []);
+
+
+    useEffect(() => {
+      const flow = localStorage.getItem("flow");
+      if (flow) {
+        const { elements } = JSON.parse(flow);
+        setInitialNodes(elements.filter((el:any) => el.type === "input"));
+        setInitialEdges(elements.filter((el:any) => el.type === "edge"));
+      }
+    }, []);
+
   return (
     <ReactFlowProvider>
     <div className="flex overflow-x-hidden">
@@ -520,28 +567,57 @@ function FlowPage() {
                           setDropData(dt);
                         }}
                         onClick={()=>{
-                          setInitialNodes([...initialNodes,{
-                              id: getId(),
-                              type:'selectorNode',
-                              style: { 
-                                  background: dt.color || '#d20d0d', color: '#4E5064', border: '1px solid #4E5064', width: 170, height: 30,
-                                  display: 'flex',borderRadius: 5, cursor: 'pointer'
-      
-                           },
-                              position: { x: randomNumberBetween(10,100), y: randomNumberBetween(10,100) },
-                              data: { label: <div style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 8,
-                                  width: '100%',
-                                  height: '100%',
-                                  whiteSpace: 'nowrap',
-                                  transform: 'translate(-4px,0px)'
-                              }}>
-                                 <span className='icons-flow'>{dt.icon}</span>
-                                 <span className='text-flow whitespace-nowrap'>{dt.label}</span>
-                              </div>},               
-                          }])
+                          let id = getId();
+                          setInitialNodes((prevNodes) => [
+                            ...prevNodes,
+                            {
+                              id: id,
+                              style: {
+                                background: dt?.color || '#d20d0d',
+                                color: '#4E5064',
+                                boxShadow: '0.5rem 0.5rem 1rem 0px rgba(0,0,0,0.25)',
+                                border: 'none',
+                                width: 170,
+                                height: 40,
+                                display: 'flex',
+                                borderRadius: 5,
+                                cursor: 'pointer',
+                                padding: 0,
+                                margin: 0,
+                              },
+                              position: {
+                                x:randomNumberBetween(0,100),
+                                y:randomNumberBetween(0,100),
+                              },
+                              data: {
+                                label: (
+                                  <div className="w-full h-full px-2">
+                                    <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2">
+                                      <TrashIcon className="h-4 w-4 text-red-500" onClick={()=>{
+                                        setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
+                                        setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
+                                      }} />
+                                    </span>
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        width: '100%',
+                                        height: '100%',
+                                        whiteSpace: 'nowrap',
+                                        transform: 'translate(-4px,0px)',
+                                        position: 'relative',
+                                      }}
+                                    >
+                                      <span className="icons-flow whitespace-nowrap">{dt?.icon}</span>
+                                      <span className="text-flow whitespace-nowrap">{dt?.label}</span>
+                                    </div>
+                                  </div>
+                                ),
+                              },
+                            },
+                          ]);
                       }}
                         >
                           <span>{dt.icon}</span>
@@ -581,8 +657,15 @@ function FlowPage() {
           onLoad={onLoad}
           minZoom={0.5}
           maxZoom={1}
+          onEdgeUpdate={onEdgeUpdate}
+          onEdgeUpdateStart={onEdgeUpdateStart}
+          onEdgeUpdateEnd={onEdgeUpdateEnd}
+          onInit={setRfInstance}
          >
-            <Background color="#ccc" variant={BackgroundVariant.Lines} gap={14} />
+            <Background color="#ccc" variant={BackgroundVariant.Lines} gap={24} size={1}/>
+            <Panel position="top-right">
+              <button onClick={onSave}>save</button>
+            </Panel>
             <Controls />
         </ReactFlow>
       </div>
