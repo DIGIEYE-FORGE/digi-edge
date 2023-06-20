@@ -499,9 +499,9 @@ function FlowPage() {
     <ReactFlowProvider>
     <div className="flex overflow-x-hidden">
       <div
-        className={`fixed top-[4rem] left-2 bottom-2 transition-[width] shadow-xl shadow-blue-gray-900/20 rounded-xl overflow-hidden
+        className={`fixed top-[4rem] left-2 bottom-2 transition-[width] shadow-xl shadow-blue-gray-900/20 rounded-xl
+        overflow-x-hidden overflow-y-auto bg-white
          z-[2] 
-         overflow-y-scroll
          ${
           secondaryMenu ? "w-[20rem]" : "w-12"
         } `}
