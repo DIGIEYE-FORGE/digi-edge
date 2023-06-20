@@ -11,9 +11,9 @@ export type Device = {
   updatedAt?: string;
   attributes: Attribute[];
   credential: {
-    username: string;
-    password?: string;
-    isToken: boolean;
+    username: string | null;
+    password: string | null;
+    isToken: boolean | null;
     [key: string]: any;
   } | null;
   deviceProfileId: number | null;
@@ -86,6 +86,7 @@ export type DeviceProfile = {
 export type Name = {
   id: number;
   name: string;
+  credentialsType?: string | null;
 };
 
 export type Attribute = {

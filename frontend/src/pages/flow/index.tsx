@@ -1,4 +1,3 @@
-import { Outlet } from "react-router-dom";
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";

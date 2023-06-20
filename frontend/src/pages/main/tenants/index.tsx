@@ -6,7 +6,7 @@ function TenantsPage() {
   const [isConnected, setIsConnected] = React.useState(false);
   const [error, setError] = React.useState("");
   const handleSwichChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.checked);
+    // console.log(e.target.checked);
     setIsSwitchOn(e.target.checked);
     if (!isConnected) {
       setError("Please connect to the device first");

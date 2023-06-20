@@ -1,8 +1,8 @@
 import { adminProcedure as procedure, router } from "../trpc";
 import prisma from "../common/prisma";
 import { z } from "zod";
-import { isBetween, isEmail, isId } from "../utils";
-import bcrypt from "bcryptjs";
+import { isBetween, isId } from "../utils";
+import * as bcrypt from "bcryptjs";
 
 export const createUserSchema = z.object({
   id: z.number().optional(),
@@ -30,12 +30,15 @@ const userRouter = router({
 
   create: procedure.input(createUserSchema).mutation(async (opts) => {
     const { input } = opts;
-    const { password, ...rest } = input;
+    const { id, password, ...rest } = input;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     return await prisma.user.create({
       data: {
-        ...rest,
+        firstName: rest.firstName,
+        lastName: rest.lastName,
+        username: rest.username,
+        role: rest.role,
         password: hashedPassword,
       },
     });

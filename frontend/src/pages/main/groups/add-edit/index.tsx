@@ -24,7 +24,7 @@ function AddEditGroup() {
 
     try {
       if (group.id) {
-        console.log("craeting");
+        // console.log("craeting");
         await trpc.group.update.mutate({
           id: group.id,
           data: {
@@ -34,7 +34,7 @@ function AddEditGroup() {
           },
         });
       } else {
-        console.log("updating");
+        // console.log("updating");
 
         await trpc.group?.create?.mutate({
           name: group.name,

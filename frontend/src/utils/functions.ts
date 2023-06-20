@@ -1,4 +1,4 @@
-export function generateRandomHex(length) {
+export function generateRandomHex(length: number) {
   let result = "";
   const characters = "0123456789ABCDEF";
 

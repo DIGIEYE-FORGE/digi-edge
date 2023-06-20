@@ -229,7 +229,7 @@ function AddEdit() {
     }
     try {
       if (data.id) {
-        console.log({ data });
+        // console.log({ data });
         await trpc.deviceProfile.update.mutate({
           id: data.id,
           data: {
@@ -378,8 +378,13 @@ function AddEdit() {
         <Button variant="text" color="red" onClick={() => setData(null)}>
           cancel
         </Button>
-        <Button variant="filled" color="green" onClick={handleSave}>
-          saved
+        <Button
+          variant="filled"
+          color="green"
+          onClick={handleSave}
+          disabled={!data?.name || !data.credentialsType}
+        >
+          save
         </Button>
       </div>
     </Drawer>

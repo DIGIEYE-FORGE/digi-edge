@@ -129,11 +129,11 @@ export function DeviceProfilePage() {
         },
         {
           header: "Device Type",
-          valueGetter: (row) => row.deviceType?.name,
+          valueGetter: (row) => row.deviceType?.name ?? "N/A",
         },
         {
           header: "Protocol",
-          valueGetter: (row) => row.protocol?.name,
+          valueGetter: (row) => row.protocol?.name ?? "N/A",
         },
         {
           header: "Description",
@@ -165,7 +165,7 @@ export function DeviceProfilePage() {
         },
         {
           header: "Decoder",
-          valueGetter: (row) => row.decoder?.name,
+          valueGetter: (row) => row.decoder?.name ?? "N/A",
         },
         {
           header: "Credentials Type",

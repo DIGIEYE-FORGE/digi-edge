@@ -34,6 +34,7 @@ const defaultData: Data = {
   isDecoded: false,
   blacklisted: false,
   credential: null,
+  credentialsType: null,
   attributes: [
     {
       name: "APP_EUI",
@@ -64,6 +65,7 @@ export function DevicePages() {
   const [deviceProfiles, setDeviceProfiles] = useState<Name[]>([]);
   const [groups, setGroups] = useState<Name[]>([]);
   const [mqttServers, setMqttServers] = useState<MqttServer[]>([]);
+  const [search, setSearch] = useState<string>("");
   const [pagination, setPagination] = useState({
     page: 1,
     perPage: 5,
@@ -96,6 +98,17 @@ export function DevicePages() {
     }
   }, [trpc]);
 
+  const filteredRows = useMemo(() => {
+    if (!search) return rows;
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    return rows.filter((row) => {
+      return (
+        row.name.toLowerCase().includes(search.toLowerCase()) ||
+        row.serial.toLowerCase().includes(search.toLowerCase())
+      );
+    });
+  }, [rows, search]);
+
   useEffect(() => {
     fetchStatic();
     fetchRows();
@@ -122,15 +135,15 @@ export function DevicePages() {
         },
         {
           header: "Device Profile",
-          valueGetter: (row) => row?.deviceProfile?.name,
+          valueGetter: (row) => row?.deviceProfile?.name || "N/A",
         },
         {
           header: "mqttServer Host",
-          valueGetter: (row) => row?.mqttServer?.host,
+          valueGetter: (row) => row?.mqttServer?.host || "N/A",
         },
         {
           header: "Application",
-          valueGetter: (row) => row?.group?.name,
+          valueGetter: (row) => row?.group?.name || "N/A",
         },
         {
           header: "Actions",
@@ -191,7 +204,13 @@ export function DevicePages() {
             Devices management
           </Typography>
           <div className="ml-auto">
-            <Input label="Search"></Input>
+            <Input
+              label="Search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+            ></Input>
           </div>
         </div>
         <Card className="flex flex-col flex-1">
@@ -200,7 +219,12 @@ export function DevicePages() {
             className="text-left table-auto w-full "
             headerClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-50 text-gray-900"
             rowClassName="[&>*]:p-2 md:[&>*]:p-3 lg:[&>*]:p-4 border-b border-blue-gray-50  hover:bg-blue-50/50 transition-colors"
-            rows={rows}
+            rows={
+              filteredRows.slice(
+                (pagination.page - 1) * pagination.perPage,
+                pagination.page * pagination.perPage
+              ) || []
+            }
             columns={columns}
             loading={fetchingState === "loading"}
             error={fetchingState === "error"}

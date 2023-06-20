@@ -21,14 +21,14 @@ function AddEditGroup() {
     try {
       const { id, ...rest } = data;
       if (id) {
-        console.log("craeting");
+        // console.log({ id, ...rest });
         await trpc.mqttServer.update.mutate({
           id,
           serial: "SERIAL",
           data: rest,
         });
       } else {
-        console.log("updating");
+        // console.log({ id, ...rest });
 
         await trpc.mqttServer.create?.mutate(rest);
       }
@@ -60,7 +60,8 @@ function AddEditGroup() {
         <div>
           <Input
             label="Client Id"
-            type="number"
+            type="string"
+            pattern="[0-9]*"
             value={data?.clientId || ""}
             onChange={(e) => {
               setData({

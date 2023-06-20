@@ -84,7 +84,7 @@ function LoginPage() {
               </Alert>
             )}
             <Input
-              label="UserName"
+              label="User Name"
               size="lg"
               error={!!error && !error.includes("password")}
               onChange={(e) => {
