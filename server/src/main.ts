@@ -55,7 +55,6 @@ app.use(
 );
 
 app.use(async (req, res, next) => {
-  console.log(req);
   try {
   } catch (error) {
     if (error instanceof TRPCError) {
