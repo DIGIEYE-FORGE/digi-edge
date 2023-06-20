@@ -27,11 +27,13 @@ const getId = () => `dndnode_${id++}`;
 
 const connectionLineStyle = {
   strokeWidth: 0.8,
+  stroke: '#000',
 };
 
 const defaultEdgeOptions = {
-  style: { strokeWidth: 1 },
+  style: { strokeWidth: 1, stroke: '#0C5866' },
   type: 'floating',
+  animated: true,
   markerEnd: {
     type: MarkerType.ArrowClosed,
   },
@@ -400,14 +402,11 @@ function FlowPage() {
 
       const onDrop = (event: React.DragEvent) => {
         event.preventDefault();
+
         const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
         if (!reactFlowBounds) {
           return;
         }
-        const position = reactFlowInstance?.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
-        });
         setInitialNodes((prevNodes) => [
           ...prevNodes,
           {
@@ -424,8 +423,8 @@ function FlowPage() {
               cursor: 'pointer',
             },
             position: {
-              x: (event.clientX),
-              y: (event.clientY),
+              x: event.clientX - 900,
+              y: event.clientY - 100,
             },
             data: {
               label: (
@@ -436,11 +435,12 @@ function FlowPage() {
                     gap: 8,
                     width: '100%',
                     height: '100%',
+                    whiteSpace: 'nowrap',
                     transform: 'translate(-4px,0px)',
                   }}
                 >
-                  <span className="icons-flow">{dropData?.icon}</span>
-                  <span className="text-flow">{dropData?.label}</span>
+                  <span className="icons-flow whitespace-nowrap">{dropData?.icon}</span>
+                  <span className="text-flow whitespace-nowrap">{dropData?.label}</span>
                 </div>
               ),
             },
@@ -535,10 +535,11 @@ function FlowPage() {
                                   gap: 8,
                                   width: '100%',
                                   height: '100%',
+                                  whiteSpace: 'nowrap',
                                   transform: 'translate(-4px,0px)'
                               }}>
                                  <span className='icons-flow'>{dt.icon}</span>
-                                 <span className='text-flow'>{dt.label}</span>
+                                 <span className='text-flow whitespace-nowrap'>{dt.label}</span>
                               </div>},               
                           }])
                       }}
@@ -567,19 +568,21 @@ function FlowPage() {
         <ReactFlow 
           nodes={initialNodes}
           edges={initialEdges}
-          snapGrid={[15, 15]}
+          snapGrid={[10, 50]}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          fitView={true}
-          snapToGrid={true}
+          fitView
+          snapToGrid
           connectionLineStyle={connectionLineStyle}
           defaultEdgeOptions={defaultEdgeOptions}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onLoad={onLoad}
+          minZoom={0.5}
+          maxZoom={1}
          >
-            <Background color="#ccc" variant={BackgroundVariant.Lines} gap={12} />
+            <Background color="#ccc" variant={BackgroundVariant.Lines} gap={14} />
             <Controls />
         </ReactFlow>
       </div>
