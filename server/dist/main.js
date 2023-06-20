@@ -53,6 +53,14 @@ var decoder_1 = require("./routes/decoder");
 var device_1 = require("./routes/device");
 var tags_1 = require("./routes/tags");
 var stats_1 = require("./routes/stats");
+var multer = require("multer");
+var storageEngine = multer.diskStorage({
+    destination: "./uploads",
+    filename: function (req, file, fn) {
+        fn(null, "".concat(new Date().getTime(), "-").concat(file.originalname));
+    },
+});
+var upload = multer({ storage: storageEngine });
 var appRouter = (0, trpc_1.router)({
     user: user_1.default,
     auth: auth_1.default,
@@ -68,6 +76,7 @@ var appRouter = (0, trpc_1.router)({
 });
 var app = express();
 app.use(cors());
+app.use(express.static("uploads"));
 app.use("/trpc", trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext: trpc_1.createContext,
@@ -96,6 +105,14 @@ app.use(function (req, res, next) { return __awaiter(void 0, void 0, void 0, fun
 }); });
 app.get("/", function (_req, res) {
     res.send("Hello World!");
+});
+app.post("/upload", upload.single("file"), function (req, res) {
+    if (req.file) {
+        res.json({ filename: req.file.filename });
+    }
+    else {
+        res.status(500).json({ message: "File upload failed" });
+    }
 });
 app.listen(3000);
 console.log("server started on http://localhost:3000");

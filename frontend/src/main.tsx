@@ -14,7 +14,7 @@ import UsersPage from "./pages/main/users";
 import NotFoundPage from "./pages/notfound";
 import MqttServersPage from "./pages/main/mqtt-server";
 import DeviceProfilePage from "./pages/main/device-profile";
-import DevPage from "./pages/dev";
+import ProfilePage from "./pages/main/profile";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -53,9 +53,13 @@ const router = createBrowserRouter([
             element: <UsersPage />,
           },
           {
-            path: "dev",
-            element: <DevPage />,
+            path: "profile",
+            element: <ProfilePage />,
           },
+          // {
+          //   path: "dev",
+          //   element: <DevPage />,
+          // },
         ],
       },
       {
