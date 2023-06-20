@@ -49,7 +49,7 @@ function FlowPage() {
     }
   }, [rfInstance, flowData]);
 
-  const [widgets,setWidgets] = React.useState<
+  const [widgets,] = React.useState<
   {
     elements:
     {
@@ -562,7 +562,7 @@ function FlowPage() {
                         `} style={{
                           backgroundColor:dt.color
                         }}
-                        onDragStart={(e)=>{
+                        onDragStart={()=>{
                           setDropData(dt);
                         }}
                         onClick={()=>{
