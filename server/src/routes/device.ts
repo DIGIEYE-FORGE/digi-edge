@@ -10,6 +10,7 @@ export const createSchema = z.object({
   serial: isBetween(2, 50),
   isPassive: z.boolean().optional(),
   isDecoded: z.boolean().optional(),
+  blacklisted: z.boolean().optional(),
   credential: z
     .object({
       username: isBetween(4, 20),
@@ -63,9 +64,15 @@ const deviceRouter = router({
       mqttServerId,
       ...rest
     } = opts.input;
+    // console.log({ credential });
+
     return await prisma.device.create({
       data: {
-        ...rest,
+        name: rest.name,
+        serial: rest.serial,
+        isPassive: rest.isPassive,
+        isDecoded: rest.isDecoded,
+        blacklisted: rest.blacklisted,
         attributes: attributes && {
           create: Object.entries(attributes).map(([key, value]) => ({
             name: key,
@@ -98,7 +105,14 @@ const deviceRouter = router({
     .mutation(async (opts) => {
       const { input } = opts;
       const { id } = input;
-      const { attributes, credential, ...rest } = input.data;
+      const {
+        attributes,
+        credential,
+        deviceProfileId,
+        groupId,
+        mqttServerId,
+        ...rest
+      } = input.data;
       const device = await prisma.device.findUnique({ where: { id } });
       await prisma.attribute.deleteMany({ where: { deviceId: id } });
       if (!device)
@@ -113,6 +127,18 @@ const deviceRouter = router({
               value,
             })),
           },
+          credential: credential && {
+            update: credential,
+          },
+          deviceProfile: deviceProfileId
+            ? {
+                connect: { id: deviceProfileId },
+              }
+            : undefined,
+          group: groupId ? { connect: { id: groupId } } : undefined,
+          mqttServer: mqttServerId
+            ? { connect: { id: mqttServerId } }
+            : undefined,
         },
       });
     }),

@@ -1,9 +1,9 @@
 import { createContext, router } from "./trpc";
 import userRouter from "./routes/user";
 import authRouter from "./routes/auth";
-import express from "express";
+import * as express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import cors from "cors";
+import * as cors from "cors";
 import { TRPCError } from "@trpc/server";
 import { getHTTPStatusCodeFromError } from "@trpc/server/http";
 import deviceTypeRouter from "./routes/device-type";

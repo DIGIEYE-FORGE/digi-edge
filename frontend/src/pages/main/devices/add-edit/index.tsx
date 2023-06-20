@@ -20,7 +20,6 @@ import { useProvider } from "../../../../components/provider";
 import { Context } from "..";
 import Drawer from "../../../../components/drawer";
 import CustomSelect from "../../../../components/custom-select";
-import { useNavigate } from "react-router-dom";
 import { Attribute } from "../../../../utils/types";
 import { useEffect, useState } from "react";
 
@@ -34,7 +33,6 @@ function AddEdit() {
     groups,
     mqttServers,
   } = useProvider<Context>();
-  const navigate = useNavigate();
 
   const [attributes, setAttributes] = useState<Attribute[]>(
     data?.attributes || []
@@ -63,14 +61,16 @@ function AddEdit() {
     });
   };
 
+  // console.log({ data });
   async function handleSave() {
     if (!data) {
       console.error("No group to save");
       return;
     }
+
     try {
       if (data.id) {
-        console.log({ data });
+        // console.log({ data });
         await trpc.device.update.mutate({
           id: data.id,
           data: {
@@ -84,6 +84,13 @@ function AddEdit() {
             attributes: Object.fromEntries(
               attributes.map((a) => [a.name, a.value])
             ),
+            credential: data.credential
+              ? {
+                  username: data.credential.username!,
+                  password: data.credential.password || undefined,
+                  isToken: data.credential.isToken || undefined,
+                }
+              : undefined,
           },
         });
       } else {
@@ -98,6 +105,13 @@ function AddEdit() {
           attributes: Object.fromEntries(
             attributes.map((a) => [a.name, a.value])
           ),
+          credential: data.credential
+            ? {
+                username: data.credential.username!,
+                password: data.credential.password || undefined,
+                isToken: data.credential.isToken || undefined,
+              }
+            : undefined,
         });
       }
       setData(null);
@@ -156,6 +170,8 @@ function AddEdit() {
                   value={data?.serial || ""}
                   error={!data?.serial.match(/^[A-F0-9]{8}$/g)}
                   success={data?.serial.match(/^[A-F0-9]{8}$/g) ? true : false}
+                  minLength={8}
+                  maxLength={8}
                   onChange={(e) => {
                     setData({
                       ...data!,
@@ -272,6 +288,8 @@ function AddEdit() {
                   />
                 </div>
               </div>
+              {deviceProfiles.find((dp) => dp.id === data?.deviceProfileId)
+                ?.credentialsType === "username_password" && <span>waza</span>}
 
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -286,6 +304,7 @@ function AddEdit() {
                       setData({
                         ...data!,
                         groupId: parseInt(newVal as string),
+                        mqttServerId: null,
                       });
                     }}
                   />
@@ -300,6 +319,7 @@ function AddEdit() {
                       label: item.host,
                       value: item.id!.toString(),
                     }))}
+                    disabled={!!data?.groupId}
                     onChange={(newVal) => {
                       setData({
                         ...data!,
@@ -375,7 +395,44 @@ function AddEdit() {
                 ))}
               </div>
             </TabPanel>
-            <TabPanel value="Credentials"></TabPanel>
+            <TabPanel
+              value="Credentials"
+              className="flex flex-col p-2 md:p-4 gap-6"
+            >
+              <div>
+                <Input
+                  label="username"
+                  value={data?.credential?.username || ""}
+                  onChange={(e) => {
+                    setData({
+                      ...data!,
+                      credential: {
+                        ...data?.credential!,
+                        username: e.target.value,
+                      },
+                    });
+                  }}
+                />
+              </div>
+              {deviceProfiles.find((dp) => dp.id === data?.deviceProfileId)
+                ?.credentialsType === "username_password" && (
+                <div>
+                  <Input
+                    label="password"
+                    value={data?.credential?.password || ""}
+                    onChange={(e) => {
+                      setData({
+                        ...data!,
+                        credential: {
+                          ...data?.credential!,
+                          password: e.target.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              )}
+            </TabPanel>
           </TabsBody>
         </Tabs>
       </div>
@@ -387,7 +444,12 @@ function AddEdit() {
           variant="filled"
           color="green"
           onClick={handleSave}
-          disabled={!data?.id && !data?.name && !data?.serial}
+          disabled={
+            (!data?.mqttServerId && !data?.groupId) ||
+            !data?.name ||
+            !data?.serial ||
+            !data?.serial.match(/^[A-F0-9]{8}$/g)
+          }
         >
           save
         </Button>

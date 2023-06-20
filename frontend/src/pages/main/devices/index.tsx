@@ -34,6 +34,7 @@ const defaultData: Data = {
   isDecoded: false,
   blacklisted: false,
   credential: null,
+  credentialsType: null,
   attributes: [
     {
       name: "APP_EUI",
@@ -122,15 +123,15 @@ export function DevicePages() {
         },
         {
           header: "Device Profile",
-          valueGetter: (row) => row?.deviceProfile?.name,
+          valueGetter: (row) => row?.deviceProfile?.name || "N/A",
         },
         {
           header: "mqttServer Host",
-          valueGetter: (row) => row?.mqttServer?.host,
+          valueGetter: (row) => row?.mqttServer?.host || "N/A",
         },
         {
           header: "Application",
-          valueGetter: (row) => row?.group?.name,
+          valueGetter: (row) => row?.group?.name || "N/A",
         },
         {
           header: "Actions",

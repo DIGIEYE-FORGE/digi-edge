@@ -1,11 +1,4 @@
-import {
-  UserCircleIcon,
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  LifebuoyIcon,
-  PowerIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+import { PowerIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import {
   Menu,
   MenuHandler,
@@ -51,7 +44,7 @@ function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1">
-        <MenuItem className="flex items-center gap-2 rounded">
+        {/* <MenuItem className="flex items-center gap-2 rounded">
           <UserCircleIcon className="h-4 w-4" strokeWidth={2} />
           <Typography
             as="span"
@@ -94,7 +87,7 @@ function ProfileMenu() {
           >
             Help
           </Typography>
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           onClick={() => {
             setAccessToken("");

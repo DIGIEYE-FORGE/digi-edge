@@ -9,12 +9,14 @@ function CustomSelect({
   options,
   className = "",
   label = "Select",
+  disabled = false,
 }: {
   label?: string;
   className?: string;
   value: string | undefined;
   onChange?: (newVal: string) => void;
   options: OptionType[] | string[];
+  disabled?: boolean;
 }) {
   return (
     <div className={`relative  min-w-[8rem] p-2 ${className}`}>
@@ -26,6 +28,7 @@ function CustomSelect({
         onChange={(e) => {
           onChange(e.target.value);
         }}
+        disabled={disabled}
       >
         <option value="" disabled>
           Select

@@ -23,7 +23,7 @@ function AddEditGroup() {
 
     try {
       if (data.id) {
-        console.log("craeting");
+        // console.log("craeting");
         await trpc.user.update.mutate({
           id: data.id,
           data: {
@@ -35,7 +35,7 @@ function AddEditGroup() {
           },
         });
       } else {
-        console.log("updating");
+        // console.log("updating");
 
         await trpc.user.create.mutate({
           firstName: data.firstName,
@@ -102,7 +102,7 @@ function AddEditGroup() {
         </div>
         <div>
           <Input
-            label="Email *"
+            label="Username *"
             value={data?.username || ""}
             onChange={(e) => {
               setData({

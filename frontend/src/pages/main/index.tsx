@@ -9,26 +9,17 @@ import {
   List,
   ListItem,
   ListItemPrefix,
-  ListItemSuffix,
-  Chip,
   Accordion,
   AccordionHeader,
   AccordionBody,
 } from "@material-tailwind/react";
 import {
   PresentationChartBarIcon,
-  UserCircleIcon,
-  Cog6ToothIcon,
-  InboxIcon,
   PowerIcon,
   RectangleGroupIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/solid";
-import {
-  ChevronRightIcon,
-  ChevronDownIcon,
-  AdjustmentsHorizontalIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 function ListItemLink({
   children,
@@ -149,7 +140,7 @@ function SideBar() {
               Users
             </ListItemLink>
           )}
-          <ListItem>
+          {/* <ListItem>
             <ListItemPrefix>
               <InboxIcon className="h-5 w-5" />
             </ListItemPrefix>
@@ -175,19 +166,19 @@ function SideBar() {
               <Cog6ToothIcon className="h-5 w-5" />
             </ListItemPrefix>
             Settings
-          </ListItemLink>
+          </ListItemLink> */}
           <ListItem onClick={handleLogout}>
             <ListItemPrefix>
               <PowerIcon className="h-5 w-5" />
             </ListItemPrefix>
             Log Out
           </ListItem>
-          <ListItemLink path="/dev">
+          {/* <ListItemLink path="/dev">
             <ListItemPrefix>
               <AdjustmentsHorizontalIcon className="h-5 w-5" />
             </ListItemPrefix>
             Dev
-          </ListItemLink>
+          </ListItemLink> */}
         </List>
       </Card>
     </div>

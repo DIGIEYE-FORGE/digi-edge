@@ -39,7 +39,7 @@ function Metrics() {
     fetchStatic();
   }, []);
 
-  console.log({ stats });
+  // console.log({ stats });
 
   const onlineDevices = data.filter((device) => {
     return device.attributes.some(

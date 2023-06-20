@@ -1,4 +1,3 @@
-import { Outlet } from "react-router-dom";
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { Card } from "@material-tailwind/react";

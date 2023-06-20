@@ -21,7 +21,7 @@ async function initUser() {
 async function main() {
   await initUser();
   const users = await prisma.user.findMany();
-  console.log({ users });
+  // console.log({ users });
 }
 
 main()
