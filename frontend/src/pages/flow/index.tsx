@@ -467,12 +467,12 @@ function FlowPage() {
         edgeUpdateSuccessful.current = false;
     }, []);
 
-    const onSave = useCallback(() => {
-      if (flowData) {
-        localStorage.setItem("flow", JSON.stringify(flowData));
-        console.log("flow", flowData);
-      }
-    }, [flowData]);
+    // const onSave = useCallback(() => {
+    //   if (flowData) {
+    //     localStorage.setItem("flow", JSON.stringify(flowData));
+    //     console.log("flow", flowData);
+    //   }
+    // }, [flowData]);
     const onEdgeUpdate = useCallback((oldEdge:any, newConnection:any) => {
         edgeUpdateSuccessful.current = true;
         setInitialEdges((els:any) => updateEdge(oldEdge, newConnection, els));
@@ -486,14 +486,14 @@ function FlowPage() {
     }, []);
 
 
-    useEffect(() => {
-      const flow = localStorage.getItem("flow");
-      if (flow) {
-        const { elements } = JSON.parse(flow);
-        setInitialNodes(elements.filter((el:any) => el.type === "input"));
-        setInitialEdges(elements.filter((el:any) => el.type === "edge"));
-      }
-    }, []);
+    // useEffect(() => {
+    //   const flow = localStorage.getItem("flow");
+    //   if (flow) {
+    //     const { elements } = JSON.parse(flow);
+    //     setInitialNodes(elements.filter((el:any) => el.type === "input"));
+    //     setInitialEdges(elements.filter((el:any) => el.type === "edge"));
+    //   }
+    // }, []);
 
   return (
     <ReactFlowProvider>
@@ -521,6 +521,7 @@ function FlowPage() {
             widgets.map((ele:any,index:number )=>{
               return (
                 <Accordion
+                key={index}
                 open={open == index}
                 icon={
                   <ChevronDownIcon
@@ -556,9 +557,9 @@ function FlowPage() {
                       color:string,
                       label:string,
                       icon:ReactNode
-                    })=>{
+                    },index:number)=>{
                       return (
-                        <div draggable className={`w-[95%] h-[3rem] border mx-2 flex items-center rounded-[5px] px-2 gap-3 cursor-pointer
+                        <div  key ={index} draggable className={`w-[95%] h-[3rem] border mx-2 flex items-center rounded-[5px] px-2 gap-3 cursor-pointer
                         `} style={{
                           backgroundColor:dt.color
                         }}
@@ -663,7 +664,7 @@ function FlowPage() {
          >
             <Background color="#ccc" variant={BackgroundVariant.Lines} gap={24} size={1}/>
             <Panel position="top-right">
-              <button onClick={onSave}>save</button>
+              {/* <button onClick={onSave}>save</button> */}
             </Panel>
             <Controls />
         </ReactFlow>
