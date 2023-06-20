@@ -114,7 +114,7 @@ function SideBar() {
             </ListItem>
             <AccordionBody className="py-1">
               <List className="p-0">
-                <ListItemLink path="/groups">
+                <ListItemLink path="/applications">
                   <ListItemPrefix>
                     <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
                   </ListItemPrefix>

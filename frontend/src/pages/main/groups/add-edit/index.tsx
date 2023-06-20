@@ -61,7 +61,7 @@ function AddEditGroup() {
     >
       <div className="p-4 flex items-center justify-between border-b">
         <Typography variant="h5" color="blue">
-          {group?.id ? "Edit" : "Add"} Group
+          {group?.id ? "Edit" : "Add"} Application
         </Typography>
         <IconButton
           variant="text"

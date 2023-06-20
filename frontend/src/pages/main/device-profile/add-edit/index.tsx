@@ -10,6 +10,7 @@ import {
   DialogBody,
   DialogFooter,
   DialogHeader,
+  Textarea,
 } from "@material-tailwind/react";
 import { useProvider } from "../../../../components/provider";
 import { Context } from "..";
@@ -47,7 +48,8 @@ function AddDeviceType() {
       <Dialog
         open={!!addDeviceData}
         handler={() => setDeviceTypeData(null)}
-        className="!w-11/12 !max-w-[30rem] "
+        className="!w-11/12"
+        size="xs"
       >
         <DialogHeader>Add device Type</DialogHeader>
         <DialogBody divider className="flex flex-col gap-2">
@@ -105,7 +107,8 @@ function AddProtocol() {
       <Dialog
         open={!!addProtocolData}
         handler={() => setProtocolData(null)}
-        className="!w-11/12 !max-w-[30rem] "
+        className="!w-11/12"
+        size="xs"
       >
         <DialogHeader>Add protocol</DialogHeader>
         <DialogBody divider className="flex flex-col gap-2">
@@ -163,7 +166,8 @@ function AddDocoder() {
       <Dialog
         open={!!addDecoderData}
         handler={() => setDecoderData(null)}
-        className="!w-11/12 !max-w-[30rem] "
+        className="!w-11/12"
+        size="xs"
       >
         <DialogHeader>Add decoder</DialogHeader>
         <DialogBody divider className="flex flex-col gap-2">
@@ -261,7 +265,7 @@ function AddEdit() {
     >
       <div className="p-2 md:p-4 flex items-center justify-between border-b">
         <Typography variant="h5" color="blue">
-          {data?.id ? "Edit" : "Add"} MQTT Server
+          {data?.id ? "Edit" : "Add"} Device Profile
         </Typography>
         <IconButton
           variant="text"
@@ -271,7 +275,7 @@ function AddEdit() {
           <XMarkIcon strokeWidth={2} className="h-5 w-5" />
         </IconButton>
       </div>
-      <div className="flex-1 flex flex-col p-2 md:p-4 gap-4 overflow-x-auto">
+      <div className="flex-1 flex flex-col p-2 md:p-4 gap-6 overflow-x-auto">
         <div>
           <Input
             label="name"
@@ -285,7 +289,7 @@ function AddEdit() {
           />
         </div>
         <div>
-          <Input
+          <Textarea
             label="description"
             value={data?.description || ""}
             onChange={(e) => {
