@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "npx nodemon",
-    "build": "tsc src/main.ts"
+    "build": "tsc src/main.ts --outDir dist"
   },
   "keywords": [],
   "author": "",
