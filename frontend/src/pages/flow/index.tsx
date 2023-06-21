@@ -1,12 +1,12 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, Panel} from 'reactflow';
+import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, Panel, ControlButton} from 'reactflow';
 import 'reactflow/dist/style.css';
-import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
+import React, { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
-import {MdOutlineAlarmAdd} from "react-icons/md"
+import {MdEditOff, MdOutlineAlarmAdd} from "react-icons/md"
 import {AiOutlineHolder, AiOutlineLogin} from "react-icons/ai"
 import {TbForbid} from "react-icons/tb"
 import {BiMath} from "react-icons/bi"
@@ -15,7 +15,9 @@ import {AiOutlineCode,AiOutlineMail} from "react-icons/ai"
 import {FaAws} from "react-icons/fa"
 import {SiApachekafka, SiMqtt, SiRabbitmq} from "react-icons/si"
 import {TbApi} from  "react-icons/tb"
-import {TiFlowMerge} from  "react-icons/ti"
+import {TiFlowMerge} from  "react-icons/ti";
+import {MdEdit} from  "react-icons/md";
+import { set } from "date-fns";
 const randomNumberBetween = (number1:number, number2:number) => {
   return Math.floor(Math.random() * (number2 - number1 + 1) + number1);
 }
@@ -40,14 +42,26 @@ function FlowPage() {
   const { secondaryMenu } = useProvider<AppContext>();
   const [rfInstance, setRfInstance] = React.useState<any | null>(null);
   const [flowData, setFlowData] = React.useState(null);
-
-
+  const [editFlow,setEditFlow] = React.useState<boolean>(false);
+  
   useEffect(() => {
     if (rfInstance && flowData === null) {
       const flow = rfInstance.toObject();
       setFlowData(flow);
     }
   }, [rfInstance, flowData]);
+
+  useEffect(() => {
+    const element = document.getElementsByClassName("icontrash");
+    for (let i=0;i<element.length;i++){
+      if (editFlow){
+        element[i].setAttribute("style","display:block");
+      }
+      else{
+       element[i].setAttribute("style","display:none");
+      }
+     }
+  }, [editFlow]);
 
   const [widgets,] = React.useState<
   {
@@ -377,15 +391,23 @@ function FlowPage() {
  const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
   const onNodesChange = useCallback(
     (changes:any) =>
-     setInitialNodes((nds) =>applyNodeChanges(changes, nds)),
-    []
+    {
+     if (!editFlow) return 
+     setInitialNodes((nds) =>applyNodeChanges(changes, nds));
+    },[editFlow,initialNodes]
     );
     const onEdgesChange = useCallback(
-      (changes:any) => setInitialEdges((eds) => applyEdgeChanges(changes, eds)),
-      []
+      (changes:any) => 
+      { 
+        if (!editFlow) return;
+      setInitialEdges((eds) => applyEdgeChanges(changes, eds));
+      },[editFlow,initialEdges]
       );
-      const onConnect = useCallback((params:any) => setInitialEdges((eds:any) => addEdge({...params,
-      }, eds)), []);
+      const onConnect = useCallback((params:any) =>
+      {
+        if (!editFlow) return;
+       setInitialEdges((eds:any) => addEdge({...params,
+      }, eds))}, [editFlow,initialEdges,initialNodes]);
     
 
       const [dropData,setDropData] = React.useState<{
@@ -395,15 +417,15 @@ function FlowPage() {
       } | null>(null);
 
       const onDragOver = (event:any) => {
+        if (!editFlow) return;
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
       };
       const onLoad = (_reactFlowInstance:any) => {
         // Set Nodes
       };
-    
 
-      const onDrop = (event: React.DragEvent) => {
+      const onDrop =useCallback((event: React.DragEvent) => {
         event.preventDefault();
 
         const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
@@ -436,7 +458,8 @@ function FlowPage() {
               label: (
                 <div className="w-full h-full px-2">
                   <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 h-6 aspect-square flex justify-center items-center rounded-full" >
-                  <TrashIcon className="h-4 w-4 text-red-500" onClick={()=>{
+                  <TrashIcon className="h-4 w-4 text-red-500 icontrash" onClick={()=>{
+                    
                       setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
                       setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
                   }} />
@@ -461,11 +484,12 @@ function FlowPage() {
             },
           },
         ]);
-      };
+      }, [dropData, editFlow]);
       const edgeUpdateSuccessful = useRef(true);
       const onEdgeUpdateStart = useCallback(() => {
+        if (!editFlow) return;
         edgeUpdateSuccessful.current = false;
-    }, []);
+    }, [editFlow]);
 
     // const onSave = useCallback(() => {
     //   if (flowData) {
@@ -474,16 +498,18 @@ function FlowPage() {
     //   }
     // }, [flowData]);
     const onEdgeUpdate = useCallback((oldEdge:any, newConnection:any) => {
+        if (!editFlow) return;
         edgeUpdateSuccessful.current = true;
         setInitialEdges((els:any) => updateEdge(oldEdge, newConnection, els));
-    }, []);
+    }, [editFlow]);
 
     const onEdgeUpdateEnd = useCallback((_:any, edge: Edge) => {
+      if (!editFlow) return;
       if (!edgeUpdateSuccessful.current) {
         setInitialEdges((edges) => edges.filter((e) => e.id !== edge.id));
       }
       edgeUpdateSuccessful.current = true;
-    }, []);
+    }, [editFlow]);
 
 
     // useEffect(() => {
@@ -567,6 +593,7 @@ function FlowPage() {
                           setDropData(dt);
                         }}
                         onClick={()=>{
+                          if (!editFlow) return ;
                           let id = getId();
                           setInitialNodes((prevNodes) => [
                             ...prevNodes,
@@ -593,10 +620,12 @@ function FlowPage() {
                                 label: (
                                   <div className="w-full h-full px-2">
                                     <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2">
-                                      <TrashIcon className="h-4 w-4 text-red-500" onClick={()=>{
-                                        setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
-                                        setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
-                                      }} />
+                                      <TrashIcon className="h-4 w-4 text-red-500 icontrash"
+                                        onClick={()=>{
+                                          setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
+                                          setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
+                                        }}
+                                     />
                                     </span>
                                     <div
                                       style={{
@@ -663,10 +692,17 @@ function FlowPage() {
           onInit={setRfInstance}
          >
             <Background color="#ccc" variant={BackgroundVariant.Lines} gap={24} size={1}/>
-            <Panel position="top-right">
-              {/* <button onClick={onSave}>save</button> */}
-            </Panel>
-            <Controls />
+            <Controls>
+            <ControlButton onClick={() =>
+                    setEditFlow((prev) => !prev)
+            } title="another action">
+                <div>
+                  {
+                    editFlow ? <MdEdit className="h-4 w-4 text-blue-gray-500"/> : <MdEditOff className="h-4 w-4 text-red-500" />
+                  }
+                </div>
+            </ControlButton>
+            </Controls>
         </ReactFlow>
       </div>
     </div>
