@@ -12,7 +12,7 @@ import { useProvider } from "../../components/provider";
 import { AppContext } from "../../App";
 import Avatar from "../../components/avatar";
 import { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 
 function ChangePasswordCard() {
   const { trpc, user } = useProvider<AppContext>();
