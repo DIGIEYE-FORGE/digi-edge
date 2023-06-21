@@ -20,6 +20,7 @@ import * as multer from "multer";
 const storageEngine = multer.diskStorage({
   destination: "./uploads",
   filename: (req, file, fn) => {
+    void req;
     fn(null, `${new Date().getTime()}-${file.originalname}`);
   },
 });
@@ -55,6 +56,7 @@ app.use(
 );
 
 app.use(async (req, res, next) => {
+  void req;
   try {
   } catch (error) {
     if (error instanceof TRPCError) {

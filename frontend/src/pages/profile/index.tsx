@@ -12,7 +12,7 @@ import { useProvider } from "../../components/provider";
 import { AppContext } from "../../App";
 import Avatar from "../../components/avatar";
 import { useState } from "react";
-// import axios from "axios";
+import axios from "axios";
 
 function ChangePasswordCard() {
   const { trpc, user } = useProvider<AppContext>();
@@ -21,7 +21,7 @@ function ChangePasswordCard() {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const changePassword = async () => {
-    if (password === confirmPassword) {
+    if (password === confirmPassword && user?.id !== undefined) {
       await trpc.user.updatePassword.mutate({
         id: user?.id,
         password: password,
@@ -121,7 +121,7 @@ function ProfilePage() {
           .post(`http://${location.hostname}:3000/upload`, formData)
           .then(async (res) => {
             await trpc.user.update.mutate({
-              id: user?.id,
+              id: user?.id!,
               data: {
                 avatar: res.data.filename,
                 firstName: data?.firstName,
@@ -132,7 +132,7 @@ function ProfilePage() {
           });
       else
         await trpc.user.update.mutate({
-          id: user?.id,
+          id: user?.id!,
           data: {
             firstName: data?.firstName,
             lastName: data?.lastName,
@@ -149,7 +149,7 @@ function ProfilePage() {
       <Card
         className="col-span-full lg:col-span-2 row-span-2 min-h-[30rem]"
         style={{
-          backgroundImage: "url(/public/online_resume.svg)",
+          backgroundImage: "url(/online_resume.svg)",
           backgroundPosition: "bottom right",
           backgroundSize: "80%",
           backgroundRepeat: "no-repeat",
