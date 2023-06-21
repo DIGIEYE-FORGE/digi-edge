@@ -17,6 +17,7 @@ import { AppContext } from "../../../App";
 import AddEdit from "./add-edit";
 import Pagination from "../../../components/pagination";
 import { MqttServer as Data, State } from "../../../utils/types.ts";
+import { FaPlus } from "react-icons/fa";
 
 const defaultData: Data = {
   host: "",
@@ -175,7 +176,7 @@ export function MqttServersPage() {
               className="flex justify-center items-center gap-3 rounded-full p-0 h-10  md:h-12 aspect-square "
               onClick={() => setData(defaultData)}
             >
-              <PlusCircleIcon strokeWidth={2} className="w-7 md:w-8" />
+               <FaPlus className="text-xl" />
             </Button>
             <Pagination
               className="mt-auto md:p-3 lg:p-4 ml-auto"

@@ -19,6 +19,7 @@ import Pagination from "../../../components/pagination";
 import { Group, MqttServer, State } from "../../../utils/types.ts";
 import { toast } from "react-toastify";
 import { TRPCClientError } from "@trpc/client";
+import { FaPlus } from "react-icons/fa";
 
 const defaultGroup: Group = {
   name: "",
@@ -190,7 +191,7 @@ export function GroupsPage() {
               className="flex justify-center items-center gap-3 rounded-full p-0 h-10  md:h-12 aspect-square "
               onClick={() => setGroup(defaultGroup)}
             >
-              <PlusCircleIcon strokeWidth={2} className="w-7 md:w-8" />
+              <FaPlus className="text-xl" />
             </Button>
             <Pagination
               className="mt-auto md:p-3 lg:p-4 ml-auto"

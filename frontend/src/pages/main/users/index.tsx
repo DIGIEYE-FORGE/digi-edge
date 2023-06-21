@@ -25,6 +25,7 @@ import { User as Data, State } from "../../../utils/types.ts";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { TRPCClientError } from "@trpc/client";
+import { FaPlus } from "react-icons/fa";
 
 const defaultData: Data = {
   firstName: "",
@@ -343,7 +344,7 @@ export function UsersPage() {
             className="flex justify-center items-center gap-3 "
             onClick={() => setData(defaultData)}
           >
-            <PlusCircleIcon strokeWidth={2} className="w-6" />
+            <FaPlus className="text-xl" />
           </Button>
         </div>
         <Card className="flex flex-col flex-1 ">
