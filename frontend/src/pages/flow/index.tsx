@@ -1,9 +1,9 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, Panel, ControlButton} from 'reactflow';
+import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, ControlButton} from 'reactflow';
 import 'reactflow/dist/style.css';
-import React, { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import {MdEditOff, MdOutlineAlarmAdd} from "react-icons/md"
@@ -17,7 +17,6 @@ import {SiApachekafka, SiMqtt, SiRabbitmq} from "react-icons/si"
 import {TbApi} from  "react-icons/tb"
 import {TiFlowMerge} from  "react-icons/ti";
 import {MdEdit} from  "react-icons/md";
-import { set } from "date-fns";
 const randomNumberBetween = (number1:number, number2:number) => {
   return Math.floor(Math.random() * (number2 - number1 + 1) + number1);
 }
@@ -42,7 +41,7 @@ function FlowPage() {
   const { secondaryMenu } = useProvider<AppContext>();
   const [rfInstance, setRfInstance] = React.useState<any | null>(null);
   const [flowData, setFlowData] = React.useState(null);
-  const [editFlow,setEditFlow] = React.useState<boolean>(false);
+  const [editFlow,setEditFlow] = React.useState<boolean>(true);
   
   useEffect(() => {
     if (rfInstance && flowData === null) {
@@ -692,7 +691,9 @@ function FlowPage() {
           onInit={setRfInstance}
          >
             <Background color="#ccc" variant={BackgroundVariant.Lines} gap={24} size={1}/>
-            <Controls>
+            <Controls 
+            showInteractive={false}
+            >
             <ControlButton onClick={() =>
                     setEditFlow((prev) => !prev)
             } title="another action">
