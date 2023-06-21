@@ -17,7 +17,7 @@ function Avatar({
       <img
         {...props}
         className={`aspect-square rounded-full ${className}`}
-        onError={(e) => {
+        onError={() => {
           setError(true);
         }}
       />
