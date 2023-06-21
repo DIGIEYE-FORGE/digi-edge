@@ -8,7 +8,6 @@ import {
 } from "@material-tailwind/react";
 import {
   PencilIcon,
-  PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import DataGrid, { Column } from "../../../components/data-grid";
