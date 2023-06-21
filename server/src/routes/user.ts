@@ -10,6 +10,7 @@ export const createUserSchema = z.object({
   lastName: isBetween(2, 50),
   username: isBetween(4, 10),
   password: z.string().min(8),
+  avatar: z.string().optional(),
   role: z.enum(["ADMIN", "USER"]).optional(),
 });
 
@@ -31,8 +32,8 @@ const userRouter = router({
   create: procedure.input(createUserSchema).mutation(async (opts) => {
     const { input } = opts;
     const { id, password, ...rest } = input;
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     return await prisma.user.create({
       data: {
         firstName: rest.firstName,
@@ -54,7 +55,37 @@ const userRouter = router({
     .mutation(async (opts) => {
       const { input } = opts;
       const { id, data } = input;
-      return await prisma.user.update({ where: { id }, data });
+
+      return await prisma.user.update({
+        where: { id },
+        data: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          username: data.username,
+          role: data.role,
+          avatar: data.avatar,
+        },
+      });
+    }),
+
+  updatePassword: procedure
+    .input(
+      z.object({
+        id: isId(),
+        password: z.string().min(8),
+      })
+    )
+    .mutation(async (opts) => {
+      const { input } = opts;
+      const { id, password } = input;
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      return await prisma.user.update({
+        where: { id },
+        data: {
+          password: hashedPassword,
+        },
+      });
     }),
 
   delete: procedure.input(isId()).mutation(async (opts) => {

@@ -158,7 +158,9 @@ function App() {
             </Button>
             <Button
               variant="text"
-              className="mt-auto  flex justify-center items-center hover:bg-blue-500 "
+              className={`mt-auto  flex justify-center items-center hover:bg-blue-500 ${
+                location.pathname === "/flow" && "bg-blue-800"
+              }`}
               onClick={() => {
                 if (location.pathname === "/flow")
                   setSecondaryMenu((prev) => !prev);
@@ -172,7 +174,9 @@ function App() {
             </Button>
             <Button
               variant="text"
-              className=" flex justify-center items-center hover:bg-blue-500 "
+              className={`flex justify-center items-center hover:bg-blue-500 ${
+                location.pathname !== "/flow" && "bg-blue-800"
+              }`}
               onClick={() => {
                 if (location.pathname !== "/flow")
                   setSecondaryMenu((prev) => !prev);
