@@ -13,11 +13,13 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { useProvider } from "../../../../components/provider";
+import Editor from "@monaco-editor/react";
 import { Context } from "..";
 import Drawer from "../../../../components/drawer";
 import { useState } from "react";
 import { Decoder, DeviceType, Protocol } from "../../../../utils/types";
 import CustomSelect from "../../../../components/custom-select";
+
 
 function AddDeviceType() {
   const { trpc, fetchDeviceTypes } = useProvider<Context>();
@@ -194,19 +196,26 @@ function AddDocoder() {
             />
           </div>
           <div>
-            <Input
-              label="func"
-              onChange={(e) => {
-                setDecoderData({
-                  ...addDecoderData!,
-                  fnc: e.target.value,
-                });
-              }}
-            />
+          <Editor
+                  height={`300px`}
+                  className="rounded-md border bg-blue-gray-100 shadow-sm"
+                  language="javascript"
+                  defaultValue="// create your function here"
+                  onChange={(e:any) => {
+                    setDecoderData({
+                      ...addDecoderData!,
+                      fnc: e.target.value,
+                  
+                    });
+                  }}
+                />
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="text" color="red" className="mr-1">
+          <Button variant="text" color="red" className="mr-1" onClick={()=>{{
+            setDecoderData(null)
+            
+          }}}>
             <span>Cancel</span>
           </Button>
           <Button variant="gradient" color="green" onClick={addDecoder}>
