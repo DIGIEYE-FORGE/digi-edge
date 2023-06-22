@@ -1,7 +1,7 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, ControlButton, useNodesState, useEdgesState} from 'reactflow';
+import ReactFlow, { Controls, Background, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Edge, updateEdge, ControlButton, useNodesState, useEdgesState, Panel, Position} from 'reactflow';
 import 'reactflow/dist/style.css';
 import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, BookmarkIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
@@ -18,7 +18,8 @@ import {TbApi} from  "react-icons/tb"
 import {TiFlowMerge} from  "react-icons/ti";
 import {MdEdit} from  "react-icons/md";
 import {randomNumberBetween,getId} from "./functions";
-import { stringify as stringfyFlatted, parse as parseFlatted } from 'flatted';
+import { stringify as stringfyFlatted } from 'flatted';
+import DownloadImage from "./download";
 
 
 const connectionLineStyle = {
@@ -431,6 +432,8 @@ function FlowPage() {
               x: event.clientX - reactFlowBounds.left,
               y: event.clientY - reactFlowBounds.top,
             },
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left,
             data: {
               label: (
                 <div className="w-full h-full px-2">
@@ -592,6 +595,8 @@ function FlowPage() {
                                 padding: 0,
                                 margin: 0,
                               },
+                              sourcePosition: Position.Right,
+                              targetPosition: Position.Left,
                               position: {
                                 x:randomNumberBetween(0,100),
                                 y:randomNumberBetween(0,100),
@@ -659,8 +664,8 @@ function FlowPage() {
           onEdgesChange={onEdgesChange}
           fitView
           snapToGrid
-          // connectionLineStyle={connectionLineStyle}
-          // defaultEdgeOptions={defaultEdgeOptions}
+          connectionLineStyle={connectionLineStyle}
+          defaultEdgeOptions={defaultEdgeOptions}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -671,6 +676,7 @@ function FlowPage() {
           onEdgeUpdateStart={onEdgeUpdateStart}
           onEdgeUpdateEnd={onEdgeUpdateEnd}
           onInit={setRfInstance}
+          className="download-image"
          >
             <Background color="#ccc" variant={BackgroundVariant.Lines} gap={24} size={1}/>
             <Controls 
@@ -689,6 +695,9 @@ function FlowPage() {
               <BookmarkIcon className="h-4 w-4 text-blue-gray-500"/>
             </ControlButton>
             </Controls>
+            <Panel position={"top-left"}>
+              <DownloadImage/>
+            </Panel>
         </ReactFlow>
       </div>
     </div>
