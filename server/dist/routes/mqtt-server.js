@@ -92,7 +92,7 @@ var mqttServerRouter = (0, trpc_1.router)({
                     _b = (_a = prisma_1.default.mqttServer).create;
                     _c = {};
                     _d = {};
-                    return [4 /*yield*/, (0, utils_1.generateRandomNumber)(1000, 9999)];
+                    return [4 /*yield*/, (0, utils_1.generateRandomNumber)(10000, 99999)];
                 case 1: return [4 /*yield*/, _b.apply(_a, [(_c.data = (_d.pid = _e.sent(),
                             _d.clientId = rest.clientId,
                             _d.username = rest.username,
