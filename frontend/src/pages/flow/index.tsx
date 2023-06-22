@@ -1,7 +1,7 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Edge, updateEdge, ControlButton, useNodesState, useEdgesState, Panel} from 'reactflow';
+import ReactFlow, { Controls, Background, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Edge, updateEdge, ControlButton, useNodesState, useEdgesState, Panel, Position} from 'reactflow';
 import 'reactflow/dist/style.css';
 import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, BookmarkIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
@@ -432,6 +432,8 @@ function FlowPage() {
               x: event.clientX - reactFlowBounds.left,
               y: event.clientY - reactFlowBounds.top,
             },
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left,
             data: {
               label: (
                 <div className="w-full h-full px-2">
@@ -593,6 +595,8 @@ function FlowPage() {
                                 padding: 0,
                                 margin: 0,
                               },
+                              sourcePosition: Position.Right,
+                              targetPosition: Position.Left,
                               position: {
                                 x:randomNumberBetween(0,100),
                                 y:randomNumberBetween(0,100),
