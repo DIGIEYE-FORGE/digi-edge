@@ -1,17 +1,4 @@
 -- CreateTable
-CREATE TABLE "users" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "accessToken" TEXT,
-    "role" TEXT NOT NULL DEFAULT 'USER',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- CreateTable
 CREATE TABLE "attributes" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
@@ -163,8 +150,23 @@ CREATE TABLE "decoders" (
 );
 
 -- CreateTable
+CREATE TABLE "users" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "avatar" TEXT,
+    "accessToken" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'USER',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
 CREATE TABLE "mqtt_servers" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "pid" INTEGER NOT NULL,
     "client_id" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -174,11 +176,14 @@ CREATE TABLE "mqtt_servers" (
     "updated_at" DATETIME NOT NULL
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
-
--- CreateIndex
-CREATE INDEX "users_accessToken_idx" ON "users"("accessToken");
+-- CreateTable
+CREATE TABLE "types" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "index" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL
+);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "attributes_device_id_name_key" ON "attributes"("device_id", "name");
@@ -215,3 +220,15 @@ CREATE UNIQUE INDEX "protocols_name_key" ON "protocols"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "decoders_name_key" ON "decoders"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
+
+-- CreateIndex
+CREATE INDEX "users_accessToken_idx" ON "users"("accessToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "mqtt_servers_pid_key" ON "mqtt_servers"("pid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "types_index_key" ON "types"("index");

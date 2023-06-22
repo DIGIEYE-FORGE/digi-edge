@@ -18,6 +18,7 @@
     "apexcharts": "^3.41.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
+    "esbuild-linux-arm64": "^0.15.18",
     "flatted": "^3.2.7",
     "html-to-image": "^1.11.11",
     "localforage": "^1.10.0",
