@@ -304,7 +304,10 @@ function AddEdit() {
                       setData({
                         ...data!,
                         groupId: parseInt(newVal as string),
-                        mqttServerId: null,
+                        mqttServerId:
+                          groups.find((group) => {
+                            return group.id === parseInt(newVal as string);
+                          })?.mqttServer?.id || null,
                       });
                     }}
                   />
