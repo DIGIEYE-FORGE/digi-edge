@@ -1,7 +1,7 @@
 import { authProcedure as procedure, router } from "../trpc";
 import prisma from "../common/prisma";
 import { z } from "zod";
-import { isBetween, isPassword } from "../utils";
+import { generateRandomNumber, isBetween, isPassword } from "../utils";
 
 export const createSchema = z.object({
   id: z.number().optional(),
@@ -29,6 +29,7 @@ const mqttServerRouter = router({
     const { id, ...rest } = input;
     return await prisma.mqttServer.create({
       data: {
+        pid: await generateRandomNumber(1000, 9999),
         clientId: rest.clientId,
         username: rest.username,
         password: rest.password,

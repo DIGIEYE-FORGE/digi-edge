@@ -16,6 +16,7 @@ import deviceRouter from "./routes/device";
 import TagRouter from "./routes/tags";
 import statsRouter from "./routes/stats";
 import * as multer from "multer";
+import { typeRouter } from "./routes/type";
 
 const storageEngine = multer.diskStorage({
   destination: "./uploads",
@@ -39,6 +40,7 @@ const appRouter = router({
   device: deviceRouter,
   tag: TagRouter,
   stats: statsRouter,
+  types: typeRouter,
 });
 
 const app = express();

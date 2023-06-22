@@ -133,6 +133,12 @@ function SideBar() {
                   </ListItemPrefix>
                   Device Profiles
                 </ListItemLink>
+                <ListItemLink path="/types">
+                  <ListItemPrefix>
+                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                  </ListItemPrefix>
+                  Types
+                </ListItemLink>
               </List>
             </AccordionBody>
           </Accordion>

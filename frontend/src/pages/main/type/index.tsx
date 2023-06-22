@@ -7,12 +7,12 @@ import {
   Input,
 } from "@material-tailwind/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataGrid, { Column } from "../../../components/data-grid";
-import Provider, { useProvider } from "../../../components/provider";
-import { AppContext } from "../../../App";
-import AddEdit from "./add-edit";
-import Pagination from "../../../components/pagination";
-import { MqttServer as Data, State } from "../../../utils/types.ts";
+import DataGrid, { Column } from "../../../components/data-grid/index.tsx";
+import Provider, { useProvider } from "../../../components/provider/index.tsx";
+import { AppContext } from "../../../App.tsx";
+import AddEdit from "./add-edit/index.tsx";
+import Pagination from "../../../components/pagination/index.tsx";
+import { Types as Data, State } from "../../../utils/types.ts";
 import { FaPlus } from "react-icons/fa";
 
 const defaultData: Data = {
@@ -29,7 +29,7 @@ export type Context = AppContext & {
   fetchRows: () => Promise<void>;
 };
 
-export function MqttServersPage() {
+export function TypesPage() {
   const context = useProvider<AppContext>();
   const { trpc, handleConfirm } = context;
   const [data, setData] = React.useState<Data | null>(null);
@@ -45,7 +45,7 @@ export function MqttServersPage() {
     setFetchingState("loading");
     await new Promise((r) => setTimeout(r, 500));
     try {
-      const mqttServers = await trpc.mqttServer.findMany.query();
+      const mqttServers = await trpc.types.findMany.query();
       setFetchingState("idle");
       setRows(mqttServers);
     } catch (error) {
@@ -58,10 +58,8 @@ export function MqttServersPage() {
     setPagination((prev) => ({ ...prev, page: 1 }));
     return rows.filter((row) => {
       return (
-        row.username.toLowerCase().includes(search.toLowerCase()) ||
-        row.host.toLowerCase().includes(search.toLowerCase()) ||
-        row.topic.toLowerCase().includes(search.toLowerCase()) ||
-        row.clientId.toString().toLowerCase().includes(search.toLowerCase())
+        row.index.toString().includes(search.toLowerCase()) ||
+        row.name.toLowerCase().includes(search.toLowerCase())
       );
     });
   }, [rows, search]);
@@ -74,24 +72,20 @@ export function MqttServersPage() {
     () =>
       [
         {
-          header: "PID",
-          field: "pid",
+          header: "Index",
+          field: "index",
         },
         {
-          header: "Client Id",
-          field: "clientId",
+          header: "Name",
+          field: "name",
         },
         {
-          header: "Username",
-          field: "username",
+          header: "Created At",
+          field: "createdAt",
         },
         {
-          header: "Host",
-          field: "host",
-        },
-        {
-          header: "Topic",
-          field: "topic",
+          header: "Updated At",
+          field: "updatedAt",
         },
         {
           header: "Actions",
@@ -111,12 +105,12 @@ export function MqttServersPage() {
                 color="red"
                 onClick={() => {
                   handleConfirm({
-                    title: "Delete MqttServer!",
+                    title: "Delete type!",
                     body: "Are you Sure do you want to precede. this action is irriversible",
                     onConfirm: async () => {
                       if (!row.id) return;
                       try {
-                        await trpc.mqttServer.delete.mutate(row.id);
+                        await trpc.types.delete.mutate(row.id);
                         fetchRows();
                       } catch (error) {
                         console.error(error);
@@ -146,7 +140,7 @@ export function MqttServersPage() {
       <div className="h-full flex flex-col gap-4">
         <div className="flex flex-wrap gap-4">
           <Typography variant="h5" color="blue">
-            MQTT Servers management
+            Types management
           </Typography>
           <div className="ml-auto">
             <Input
@@ -192,4 +186,4 @@ export function MqttServersPage() {
   );
 }
 
-export default MqttServersPage;
+export default TypesPage;

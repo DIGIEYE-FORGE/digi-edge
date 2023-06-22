@@ -10,23 +10,6 @@ datasource db {
   url      = "file:../db/dev.json"
 }
 
-model User {
-  id           Int            @id @default(autoincrement())
-  firstName    String
-  lastName     String
-  username        String         @unique
-  password     String
-  avatar       String?
-  accessToken  String?
-  role         String         @default("USER")
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-
-  @@index([accessToken])
-  @@map("users")
-}
-
-
 model Attribute {
   id    Int    @id @default(autoincrement())
   name  String
@@ -233,8 +216,27 @@ model Decoder {
   @@map("decoders")
 }
 
+
+model User {
+  id           Int            @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  username        String         @unique
+  password     String
+  avatar       String?
+  accessToken  String?
+  role         String         @default("USER")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+
+  @@index([accessToken])
+  @@map("users")
+}
+
+
 model MqttServer {
   id       Int    @id @default(autoincrement())
+  pid     Int   @unique
   clientId Int    @map("client_id")
   username String
   password String
@@ -248,4 +250,15 @@ model MqttServer {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("mqtt_servers")
+}
+
+model Type {
+  id  Int    @id @default(autoincrement())
+  index Int   @unique
+  name String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("types")
 }

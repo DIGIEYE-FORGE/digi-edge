@@ -3,6 +3,7 @@ import { sign, verify } from "jsonwebtoken";
 import env from "../common/env";
 import { genSalt, hash } from "bcryptjs";
 import { TRPCError } from "@trpc/server";
+import prisma from "../common/prisma";
 
 export const isMin = (min: number) =>
   z.string().min(min, {
@@ -74,4 +75,21 @@ export type DecodedToken = {
   id: number;
   exp?: number;
   iat?: number;
+};
+
+export const generateRandomNumber = async (
+  min: number,
+  max: number
+): Promise<number> => {
+  const rand = Math.floor(Math.random() * (max - min + 1) + min);
+  const exist = await prisma.mqttServer.findUnique({
+    where: {
+      pid: rand,
+    },
+  });
+
+  if (exist) {
+    return generateRandomNumber(min, max);
+  }
+  return rand;
 };

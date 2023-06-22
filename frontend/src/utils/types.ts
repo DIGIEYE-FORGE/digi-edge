@@ -22,6 +22,14 @@ export type Device = {
   [key: string]: any;
 };
 
+export type Types = {
+  id?: number;
+  index: number;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type Group = {
   id?: number;
   name: string;
@@ -34,6 +42,7 @@ export type Group = {
 
 export type MqttServer = {
   id?: number;
+  pid?: number;
   clientId: number;
   username: string;
   password: string;
