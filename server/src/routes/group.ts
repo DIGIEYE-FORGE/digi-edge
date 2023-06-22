@@ -45,7 +45,9 @@ const groupRouter = router({
     }),
 
   getNames: procedure.query(async () => {
-    return await prisma.group.findMany({ select: { id: true, name: true } });
+    return await prisma.group.findMany({
+      select: { id: true, name: true, mqttServer: true },
+    });
   }),
 
   findUnique: procedure.input(z.number()).query(async (opts) => {

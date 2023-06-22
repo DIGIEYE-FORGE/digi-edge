@@ -96,6 +96,7 @@ export type Name = {
   id: number;
   name: string;
   credentialsType?: string | null;
+  mqttServer?: MqttServer | null;
 };
 
 export type Attribute = {
