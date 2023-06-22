@@ -1,10 +1,10 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, ControlButton} from 'reactflow';
+import ReactFlow, { Controls, Background, applyEdgeChanges, applyNodeChanges, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Node, Edge, updateEdge, ControlButton, useNodesState, useEdgesState} from 'reactflow';
 import 'reactflow/dist/style.css';
 import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
-import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, BookmarkIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import {MdEditOff, MdOutlineAlarmAdd} from "react-icons/md"
 import {AiOutlineHolder, AiOutlineLogin} from "react-icons/ai"
@@ -17,12 +17,10 @@ import {SiApachekafka, SiMqtt, SiRabbitmq} from "react-icons/si"
 import {TbApi} from  "react-icons/tb"
 import {TiFlowMerge} from  "react-icons/ti";
 import {MdEdit} from  "react-icons/md";
-const randomNumberBetween = (number1:number, number2:number) => {
-  return Math.floor(Math.random() * (number2 - number1 + 1) + number1);
-}
+import {randomNumberBetween,getId} from "./functions";
+import { stringify as stringfyFlatted, parse as parseFlatted } from 'flatted';
 
-let id = 0;
-const getId = () => `dndnode_${id++}`;
+
 const connectionLineStyle = {
   strokeWidth: 0.8,
   stroke: '#000',
@@ -40,15 +38,8 @@ let defaultEdgeOptions = {
 function FlowPage() {
   const { secondaryMenu } = useProvider<AppContext>();
   const [rfInstance, setRfInstance] = React.useState<any | null>(null);
-  const [flowData, setFlowData] = React.useState(null);
   const [editFlow,setEditFlow] = React.useState<boolean>(true);
   
-  useEffect(() => {
-    if (rfInstance && flowData === null) {
-      const flow = rfInstance.toObject();
-      setFlowData(flow);
-    }
-  }, [rfInstance, flowData]);
 
   useEffect(() => {
     const element = document.getElementsByClassName("icontrash");
@@ -62,6 +53,7 @@ function FlowPage() {
      }
   }, [editFlow]);
 
+  
   const [widgets,] = React.useState<
   {
     elements:
@@ -384,30 +376,16 @@ function FlowPage() {
     setOpen(i)
   }
 
-  const [initialNodes,setInitialNodes ]= React.useState<Node[]>([]);
-  const [initialEdges,setInitialEdges]  = React.useState<Edge[]>([]);
 
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
  const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
-  const onNodesChange = useCallback(
-    (changes:any) =>
-    {
-     if (!editFlow) return 
-     setInitialNodes((nds) =>applyNodeChanges(changes, nds));
-    },[editFlow,initialNodes]
-    );
-    const onEdgesChange = useCallback(
-      (changes:any) => 
-      { 
-        if (!editFlow) return;
-      setInitialEdges((eds) => applyEdgeChanges(changes, eds));
-      },[editFlow,initialEdges]
-      );
+ 
       const onConnect = useCallback((params:any) =>
       {
         if (!editFlow) return;
-       setInitialEdges((eds:any) => addEdge({...params,
-      }, eds))}, [editFlow,initialEdges,initialNodes]);
-    
+       setEdges((eds:any) => addEdge({...params,
+      }, eds))}, [editFlow,nodes,edges]);
 
       const [dropData,setDropData] = React.useState<{
         color:string,
@@ -426,14 +404,14 @@ function FlowPage() {
 
       const onDrop =useCallback((event: React.DragEvent) => {
         event.preventDefault();
-
+        
         const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect() || null;
         if (!reactFlowBounds) {
           return;
         }
         let id = getId();
-        setInitialNodes((prevNodes) => [
-          ...prevNodes,
+        setNodes((prevNodes) => 
+        prevNodes.concat(
           {
             id: id,
             style: {
@@ -450,17 +428,16 @@ function FlowPage() {
               margin: 0,
             },
             position: {
-              x: event.clientX - 900,
-              y: event.clientY - 100,
+              x: event.clientX - reactFlowBounds.left,
+              y: event.clientY - reactFlowBounds.top,
             },
             data: {
               label: (
                 <div className="w-full h-full px-2">
                   <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 h-6 aspect-square flex justify-center items-center rounded-full" >
                   <TrashIcon className="h-4 w-4 text-red-500 icontrash" onClick={()=>{
-                    
-                      setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
-                      setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
+                      setNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
+                      setEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
                   }} />
                   </span>
                   <div
@@ -482,7 +459,7 @@ function FlowPage() {
               ),
             },
           },
-        ]);
+        ));
       }, [dropData, editFlow]);
       const edgeUpdateSuccessful = useRef(true);
       const onEdgeUpdateStart = useCallback(() => {
@@ -490,33 +467,37 @@ function FlowPage() {
         edgeUpdateSuccessful.current = false;
     }, [editFlow]);
 
-    // const onSave = useCallback(() => {
-    //   if (flowData) {
-    //     localStorage.setItem("flow", JSON.stringify(flowData));
-    //     console.log("flow", flowData);
-    //   }
-    // }, [flowData]);
+ 
+   
+    const onSave = useCallback(async() => {
+      if (rfInstance) {
+        const flow = rfInstance.toObject();
+        localStorage.setItem("flow", await stringfyFlatted(flow));
+      }
+    }, [rfInstance]);
+    
     const onEdgeUpdate = useCallback((oldEdge:any, newConnection:any) => {
         if (!editFlow) return;
         edgeUpdateSuccessful.current = true;
-        setInitialEdges((els:any) => updateEdge(oldEdge, newConnection, els));
+        setEdges((els:any) => updateEdge(oldEdge, newConnection, els));
     }, [editFlow]);
 
     const onEdgeUpdateEnd = useCallback((_:any, edge: Edge) => {
       if (!editFlow) return;
       if (!edgeUpdateSuccessful.current) {
-        setInitialEdges((edges) => edges.filter((e) => e.id !== edge.id));
+        setEdges((edges) => edges.filter((e) => e.id !== edge.id));
       }
       edgeUpdateSuccessful.current = true;
     }, [editFlow]);
 
 
+  
+
+
     // useEffect(() => {
-    //   const flow = localStorage.getItem("flow");
-    //   if (flow) {
-    //     const { elements } = JSON.parse(flow);
-    //     setInitialNodes(elements.filter((el:any) => el.type === "input"));
-    //     setInitialEdges(elements.filter((el:any) => el.type === "edge"));
+    //   const data = localStorage.getItem("flow");
+    //   if (data){
+    //    console.log(parseFlatted(data));
     //   }
     // }, []);
 
@@ -594,7 +575,7 @@ function FlowPage() {
                         onClick={()=>{
                           if (!editFlow) return ;
                           let id = getId();
-                          setInitialNodes((prevNodes) => [
+                          setNodes((prevNodes) => [
                             ...prevNodes,
                             {
                               id: id,
@@ -621,8 +602,8 @@ function FlowPage() {
                                     <span className="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2">
                                       <TrashIcon className="h-4 w-4 text-red-500 icontrash"
                                         onClick={()=>{
-                                          setInitialNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
-                                          setInitialEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
+                                          setNodes((prevNodes) => prevNodes.filter((n) => n.id !== id));
+                                          setEdges((prevEdges) => prevEdges.filter((e) => e.source !== id && e.target !== id));
                                         }}
                                      />
                                     </span>
@@ -667,18 +648,19 @@ function FlowPage() {
           ${
           secondaryMenu && " 2xl:pl-[20.5rem]"
         }`}
-        ref ={reactFlowWrapper}
+        ref={reactFlowWrapper}
       >
         <ReactFlow 
-          nodes={initialNodes}
-          edges={initialEdges}
+    
+          nodes={nodes}
+          edges={edges}
           snapGrid={[10, 50]}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           fitView
           snapToGrid
-          connectionLineStyle={connectionLineStyle}
-          defaultEdgeOptions={defaultEdgeOptions}
+          // connectionLineStyle={connectionLineStyle}
+          // defaultEdgeOptions={defaultEdgeOptions}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -702,6 +684,9 @@ function FlowPage() {
                     editFlow ? <MdEdit className="h-4 w-4 text-blue-gray-500"/> : <MdEditOff className="h-4 w-4 text-red-500" />
                   }
                 </div>
+            </ControlButton>
+            <ControlButton onClick={onSave}>
+              <BookmarkIcon className="h-4 w-4 text-blue-gray-500"/>
             </ControlButton>
             </Controls>
         </ReactFlow>
