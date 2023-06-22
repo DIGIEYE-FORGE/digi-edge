@@ -16,11 +16,8 @@ import { Types as Data, State } from "../../../utils/types.ts";
 import { FaPlus } from "react-icons/fa";
 
 const defaultData: Data = {
-  host: "",
-  topic: "",
-  password: "",
-  username: "",
-  clientId: 0,
+  index: 0,
+  name: "",
 };
 
 export type Context = AppContext & {

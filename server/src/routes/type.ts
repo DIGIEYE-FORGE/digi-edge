@@ -1,7 +1,7 @@
 import { authProcedure as procedure, router } from "../trpc";
 import prisma from "../common/prisma";
 import { z } from "zod";
-import { isBetween, isPassword } from "../utils";
+import { isBetween } from "../utils";
 
 export const createSchema = z.object({
   id: z.number().optional(),

@@ -19,6 +19,7 @@
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "flatted": "^3.2.7",
+    "html-to-image": "^1.11.11",
     "localforage": "^1.10.0",
     "lottie-react": "^2.4.0",
     "match-sorter": "^6.3.1",
