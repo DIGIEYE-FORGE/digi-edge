@@ -1,7 +1,7 @@
 import { AppContext } from "../../App";
 import { useProvider } from "../../components/provider";
 import { AccordionHeader, Card, List, ListItemPrefix, ListItem, Accordion, AccordionBody ,Typography} from "@material-tailwind/react";
-import ReactFlow, { Controls, Background, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Edge, updateEdge, ControlButton, useNodesState, useEdgesState, Panel, Position} from 'reactflow';
+import ReactFlow, { Controls, Background, addEdge, ReactFlowProvider, MarkerType, BackgroundVariant, Edge, updateEdge, ControlButton, useNodesState, useEdgesState, Panel, Position, applyNodeChanges, applyEdgeChanges} from 'reactflow';
 import 'reactflow/dist/style.css';
 import React, { ReactNode, RefObject, useCallback, useEffect, useRef } from "react";
 import { AdjustmentsHorizontalIcon, ArrowPathIcon, BoltIcon, BookmarkIcon, ChevronDownIcon, ClipboardIcon, CodeBracketIcon, CodeBracketSquareIcon, DocumentDuplicateIcon, GlobeAltIcon, InboxIcon, KeyIcon , RectangleGroupIcon, TrashIcon, XCircleIcon } from "@heroicons/react/24/outline";
@@ -18,7 +18,7 @@ import {TbApi} from  "react-icons/tb"
 import {TiFlowMerge} from  "react-icons/ti";
 import {MdEdit} from  "react-icons/md";
 import {randomNumberBetween,getId} from "./functions";
-import { stringify as stringfyFlatted } from 'flatted';
+// import { stringify as stringfyFlatted } from 'flatted';
 import DownloadImage from "./download";
 
 
@@ -378,9 +378,24 @@ function FlowPage() {
   }
 
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
  const reactFlowWrapper: RefObject<HTMLDivElement> = useRef(null);
+
+ const onNodesChange = useCallback(
+  (changes:any) =>
+  {
+    if (!editFlow) return;
+   setNodes((nds) =>applyNodeChanges(changes, nds))},
+  []
+  );
+  const onEdgesChange = useCallback(
+    (changes:any) =>{ 
+      if (!editFlow) return;
+      setEdges((eds) => applyEdgeChanges(changes, eds))
+    },
+    []
+    );
  
       const onConnect = useCallback((params:any) =>
       {
@@ -475,7 +490,8 @@ function FlowPage() {
     const onSave = useCallback(async() => {
       if (rfInstance) {
         const flow = rfInstance.toObject();
-        localStorage.setItem("flow", await stringfyFlatted(flow));
+        localStorage.setItem("flow",JSON.stringify(flow))
+         console.log(flow);
       }
     }, [rfInstance]);
     
@@ -492,9 +508,6 @@ function FlowPage() {
       }
       edgeUpdateSuccessful.current = true;
     }, [editFlow]);
-
-
-  
 
 
     // useEffect(() => {
@@ -660,7 +673,7 @@ function FlowPage() {
           nodes={nodes}
           edges={edges}
           snapGrid={[10, 50]}
-          onNodesChange={onNodesChange}
+          onNodesChange={ onNodesChange}
           onEdgesChange={onEdgesChange}
           fitView
           snapToGrid
