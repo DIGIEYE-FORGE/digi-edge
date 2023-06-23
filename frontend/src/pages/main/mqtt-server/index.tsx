@@ -73,10 +73,10 @@ export function MqttServersPage() {
   const columns: Column<Data>[] = useMemo(
     () =>
       [
-        {
-          header: "PID",
-          field: "pid",
-        },
+        // {
+        //   header: "PID",
+        //   field: "pid",
+        // },
         {
           header: "Client Id",
           field: "clientId",

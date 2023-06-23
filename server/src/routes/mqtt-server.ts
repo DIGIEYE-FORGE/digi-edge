@@ -29,7 +29,7 @@ const mqttServerRouter = router({
     const { id, ...rest } = input;
     return await prisma.mqttServer.create({
       data: {
-        pid: await generateRandomNumber(1000, 9999),
+        pid: await generateRandomNumber(10000, 99999),
         clientId: rest.clientId,
         username: rest.username,
         password: rest.password,

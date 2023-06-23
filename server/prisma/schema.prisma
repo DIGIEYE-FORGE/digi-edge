@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../db/dev.json"
+  url      = "file:/srv/db/edge.sqlite"
 }
 
 model Attribute {
