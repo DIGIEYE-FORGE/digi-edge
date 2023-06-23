@@ -98,7 +98,9 @@ var groupRouter = (0, trpc_1.router)({
     getNames: trpc_1.authProcedure.query(function () { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, prisma_1.default.group.findMany({ select: { id: true, name: true } })];
+                case 0: return [4 /*yield*/, prisma_1.default.group.findMany({
+                        select: { id: true, name: true, mqttServer: true },
+                    })];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
